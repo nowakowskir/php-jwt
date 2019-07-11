@@ -84,6 +84,7 @@ try {
 
 ```
 $tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
+
 var_dump($tokenEncoded->decode()->getPayload());
 ```
 
@@ -253,6 +254,7 @@ $tokenDecoded = $tokenEncoded->decode();
 $payload = $tokenDecoded->getPayload();
 
 header('Content-Type: application/json');
+
 echo json_encode([
     'name' => $payload['name'] ?? 'unknown',
 ]);
