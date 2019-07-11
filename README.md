@@ -68,15 +68,15 @@ echo 'Your token is: ' . $tokenEncoded->__toString();
 $tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
         
 try {
-  $tokenEncoded->validate($key);
+    $tokenEncoded->validate($key);
 } catch (IntegrityViolationException $e) {
-  // Token is not trusted
+    // Token is not trusted
 } catch(TokenExpiredException $e) {
-  // Token expired (exp date reached)
+    // Token expired (exp date reached)
 } catch(TokenInactiveException $e) {
-  // Token is not yet active (nbf or iat dates not reached)
+    // Token is not yet active (nbf or iat dates not reached)
 } catch(Exception $e) {
-  // Something else gone wrong
+    // Something else gone wrong
 }
 ```
 
@@ -146,9 +146,9 @@ $publicKey = file_get_contents('./public.pub');
 $tokenEncoded = new TokenEncoded($tokenString);
 
 try {
-  $tokenEncoded->validate($key);
+    $tokenEncoded->validate($key);
 } catch (IntegrityViolationException $e) {
-  // Token is not trusted
+    // Token is not trusted
 }
 ```
 
