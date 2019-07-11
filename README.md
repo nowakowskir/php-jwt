@@ -164,7 +164,7 @@ $tokenEncoded = $tokenDecoded->encode($key);
 
 ### Creating new token with not before date (nbf)
 
-You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's payload under ```exp``` key.
+You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's payload under ```nbf``` key.
 
 ```
 $tokenDecoded = new TokenDecoded([], ['nbf' => time() + 1000]);
