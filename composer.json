@@ -8,7 +8,7 @@
             "email": "nowakowski.r@gmail.com"
         }
     ],
-    "license": "",
+    "license": "BSD-3-Clause",
     "require": {
         "php": ">=7.1.3"
     },
