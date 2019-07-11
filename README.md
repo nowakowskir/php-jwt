@@ -198,7 +198,7 @@ Let's imagine we have API that is used by our frontend application. We have two 
 
 You don't want to use cookies as your API is hosted on other domain and session is not shared across the servers. Passing user credentials in the API requests is also not a good idea. We need some other way of verification. Here JWT comes into play.
 
-Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authentication``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and is not tampered on the way.
+Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authentication``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and was not tampered on the way.
 
 Let's see how we can implement interaction between those two applications.
 
