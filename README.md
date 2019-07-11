@@ -209,10 +209,10 @@ $privateKey = file_get_contents('./private.key');
 $tokenEncoded = $tokenDecoded->encode($privateKey);
 
 $opts = [
-  'http' => [
-    'method' => 'GET',
-    'header' => 'Authentication: ' . $tokenEncoded->__toString() . "\r\n",
-  ] ];
+    'http' => [
+        'method' => 'GET',
+        'header' => 'Authentication: ' . $tokenEncoded->__toString() . "\r\n",
+    ]];
 
 $context = stream_context_create($opts);
 
@@ -225,23 +225,23 @@ echo $response;
 
 ```
 if (! array_key_exists('HTTP_AUTHENTICATION', $_SERVER)) {
-        // Handle no existing token
+    // Handle no existing token
 }
 
 try {
-        $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHENTICATION']);
+    $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHENTICATION']);
 } catch (Exception $e) {
-        // Handle token creation issue
+    // Handle token creation issue
 }
 
 $publicKey = file_get_contents('./public.pub');
 
 try {
-        $tokenEncoded->validate($publicKey);
+    $tokenEncoded->validate($publicKey);
 } catch (IntegrityViolationException $e) {
-        // Handle invalid token
+    // Handle invalid token
 } catch (Exception $e) {
-        // Handle other exceptions
+    // Handle other exceptions
 }
 
 $tokenDecoded = $tokenEncoded->decode();
@@ -250,6 +250,6 @@ $payload = $tokenDecoded->getPayload();
 
 header('Content-Type: application/json');
 echo json_encode([
-        'name' => $payload['name'] ?? 'unknown',
+    'name' => $payload['name'] ?? 'unknown',
 ]);
 ```
