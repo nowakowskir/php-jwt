@@ -187,32 +187,32 @@ class TokenEncodedTest extends TokenBaseTest
 
     public function test_token_integrity_rs256()
     {
-        $this->token_integrity(JWT::ALGORITHM_RS256, file_get_contents('./tests/private.key'), file_get_contents('./tests/public.pub'));
+        $this->token_integrity(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
     }
     
     public function test_token_integrity_violation_rs256()
     {
-        $this->token_integrity_violation(JWT::ALGORITHM_RS256, file_get_contents('./tests/private.key'), file_get_contents('./tests/public_invalid.pub'));
+        $this->token_integrity_violation(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
     }
     
     public function test_token_integrity_rs384()
     {
-        $this->token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/private.key'), file_get_contents('./tests/public.pub'));
+        $this->token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
     }
     
     public function test_token_integrity_violation_rs384()
     {
-        $this->token_integrity_violation(JWT::ALGORITHM_RS384, file_get_contents('./tests/private.key'), file_get_contents('./tests/public_invalid.pub'));
+        $this->token_integrity_violation(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
     }
         
     public function test_token_integrity_rs512()
     {
-        $this->token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/private.key'), file_get_contents('./tests/public.pub'));
+        $this->token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
     }
     
     public function test_token_integrity_violation_rs512()
     {
-        $this->token_integrity_violation(JWT::ALGORITHM_RS512, file_get_contents('./tests/private.key'), file_get_contents('./tests/public_invalid.pub'));
+        $this->token_integrity_violation(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
     }
 
     public function test_token_expiration_valid()
