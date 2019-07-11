@@ -106,8 +106,13 @@ class Validation
     {
         switch ($type) {
             case 'integer':
-            default:
                 if (array_key_exists($claim, $payload) && ! is_int($payload[$claim])) {
+                    throw new InvalidClaimTypeException(sprintf('Invalid %s claim - %s value required', $claim, $type));
+                }
+                break;
+            case 'string':
+            default:
+                if (array_key_exists($claim, $payload) && ! is_string($payload[$claim])) {
                     throw new InvalidClaimTypeException(sprintf('Invalid %s claim - %s value required', $claim, $type));
                 }
                 break;

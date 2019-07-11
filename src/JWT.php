@@ -148,13 +148,14 @@ class JWT
      * @param TokenEncoded  $tokenEncoded   Encoded token
      * @param string        $key            Key used to signature verification
      * @param int|null      $leeway         Some optional period to avoid clock synchronization issues
+     * @param array|null    $key            Claims to be excluded from validation
      * 
      * @return boolean
      * 
      * @throws IntegrityViolationException
      * @throws UnsupportedAlgorithmException
      */
-    public static function validate(TokenEncoded $tokenEncoded, string $key, ?int $leeway = null): void
+    public static function validate(TokenEncoded $tokenEncoded, string $key, ?int $leeway = null, ?array $claimsExclusions = null): void
     {
         $tokenDecoded = self::decode($tokenEncoded);
 
@@ -186,10 +187,6 @@ class JWT
         
         if (array_key_exists('nbf', $payload)) {
             Validation::checkNotBeforeDate($payload['nbf'], $leeway);
-        }
-        
-        if (array_key_exists('iat', $payload)) {
-            Validation::checkNotBeforeDate($payload['iat'], $leeway);
         }
     }
     

@@ -60,6 +60,11 @@ class TokenEncoded
         Validation::checkClaimType('exp', 'integer', $payloadArray);
         Validation::checkClaimType('iat', 'integer', $payloadArray);
         
+        Validation::checkClaimType('iss', 'string', $payloadArray);
+        Validation::checkClaimType('sub', 'string', $payloadArray);
+        Validation::checkClaimType('aud', 'string', $payloadArray);
+        Validation::checkClaimType('jti', 'string', $payloadArray);
+        
         $this->token = $token;
         $this->payload = $payload;
         $this->header = $header;
@@ -119,11 +124,12 @@ class TokenEncoded
     /**
      * Performs auto validation using given key.
      * 
-     * @param string $key
+     * @param string        $key        Key
+     * @param int|null      $leeway     Optional leeway
      * 
      * @return bool
      */
-    public function validate(string $key, int $leeway = null): void
+    public function validate(string $key, ?int $leeway = null): void
     {
         JWT::validate($this, $key, $leeway);
     }
