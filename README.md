@@ -33,16 +33,20 @@ When using this package, you will be mostly interested in two classes: ```TokenE
 
 ### TokenDecoded
 
-This class is representation of decoded token. It consist of header and payload. If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
+This class is representation of decoded token. It consist of header and payload.
+
+If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
 
 ### TokenEncoded
 
 This class is representation of encoded token. You can decode token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
 
-> Please note, providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
+You may also need to create encoded token directly from a string, so you can use ```$tokenEncoded = new TokenEncoded($tokenString)```.
+
+> Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
 issued by trusted party. It does not protect your data passed in payload!
 
-You should use ```$tokenEncoded->decode()``` method if you need to access token's header or payload only.
+You should use ```$tokenEncoded->decode()``` method only if you need to access token's header or payload.
 
 In order to validate token you should use ```$tokenEncoded->validate($key)``` method.
 
@@ -64,15 +68,15 @@ echo 'Your token is: ' . $tokenEncoded->__toString();
 $tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
         
 try {
-  $tokenEncoded->validate($key);
+    $tokenEncoded->validate($key);
 } catch (IntegrityViolationException $e) {
-  // Token is not trusted
+    // Token is not trusted
 } catch(TokenExpiredException $e) {
-  // Token expired (exp date reached)
+    // Token expired (exp date reached)
 } catch(TokenInactiveException $e) {
-  // Token is not yet active (nbf or iat dates not reached)
+    // Token is not yet active (nbf or iat dates not reached)
 } catch(Exception $e) {
-  // Something else gone wrong
+    // Something else gone wrong
 }
 ```
 
@@ -80,10 +84,11 @@ try {
 
 ```
 $tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
+
 var_dump($tokenEncoded->decode()->getPayload());
 ```
 
-> Please note, providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
+> Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
 issued by trusted party. It does not protect your data passed in payload!
 
 ### Creating new token with custom algorithm
@@ -106,7 +111,7 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS512);
 // HS384 algorithm will take priority
 ```
 
-Please note there is no need to provide algorithm when validating token as algorithm is already contained in token's header.
+Please note that there is no need to provide algorithm when validating token as algorithm is already contained in token's header.
 
 ```
 $tokenEncoded = new TokenEncoded($tokenString);
@@ -142,36 +147,36 @@ $publicKey = file_get_contents('./public.pub');
 $tokenEncoded = new TokenEncoded($tokenString);
 
 try {
-  $tokenEncoded->validate($key);
+    $tokenEncoded->validate($key);
 } catch (IntegrityViolationException $e) {
-  // Token is not trusted
+    // Token is not trusted
 }
 ```
 
 ### Creating new token with expiration date (exp)
 
-You may need to define expiration date for your token. To do so, you need to provide timestamp of expiration date into token's header under ```exp``` key.
+You may need to define expiration date for your token. To do so, you need to provide timestamp of expiration date into token's payload under ```exp``` key.
 
 ```
-$tokenDecoded = new TokenDecoded(['exp' => time() + 1000], $payload);
+$tokenDecoded = new TokenDecoded([], ['exp' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
 ### Creating new token with not before date (nbf)
 
-You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's header under ```exp``` key.
+You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's payload under ```exp``` key.
 
 ```
-$tokenDecoded = new TokenDecoded(['nbf' => time() + 1000], $payload);
+$tokenDecoded = new TokenDecoded([], ['nbf' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
 ### Creating new token with issued at date (iat)
 
-This is simillar to ```nbf```, but here you need to provide timestamp of issued at date into token's header under ```iat``` key.
+This is simillar to ```nbf```, but here you need to provide timestamp of issued at date into token's payload under ```iat``` key.
 
 ```
-$tokenDecoded = new TokenDecoded(['iat' => time() + 1000], $payload);
+$tokenDecoded = new TokenDecoded([], ['iat' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
@@ -183,4 +188,74 @@ Because clock may vary across the servers, you can use so called ```leeway``` to
 $leeway = 500;
 $tokenEncoded = new TokenEncoded($tokenString);
 $tokenEncoded->validate($key, $leeway);
+```
+
+## Sample
+
+### Application
+
+Let's imagine we have API that is used by our frontend application. We have two parties: API and frontend application.
+
+You don't want to use cookies as your API is hosted on other domain and session is not shared across the servers. Passing user credentials in the API requests is also not a good idea. We need some other way of verification. Here JWT comes into play.
+
+Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authentication``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and was not tampered on the way.
+
+Let's see how we can implement interaction between those two applications.
+
+### Frontend
+
+```
+$payload = ['name' => 'john'];
+
+$tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], $payload);
+
+$privateKey = file_get_contents('./private.key');
+
+$tokenEncoded = $tokenDecoded->encode($privateKey);
+
+$opts = [
+    'http' => [
+        'method' => 'GET',
+        'header' => 'Authentication: ' . $tokenEncoded->__toString() . "\r\n",
+    ]];
+
+$context = stream_context_create($opts);
+
+$response = file_get_contents('http://localhost/api/welcome', false, $context);
+
+echo $response;
+```
+
+### API
+
+```
+if (! array_key_exists('HTTP_AUTHENTICATION', $_SERVER)) {
+    // Handle no authentication header received
+}
+
+try {
+    $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHENTICATION']);
+} catch (Exception $e) {
+    // Handle token parsing exceptions
+}
+
+$publicKey = file_get_contents('./public.pub');
+
+try {
+    $tokenEncoded->validate($publicKey);
+} catch (IntegrityViolationException $e) {
+    // Handle token not trusted
+} catch (Exception $e) {
+    // Handle other validation exceptions
+}
+
+$tokenDecoded = $tokenEncoded->decode();
+
+$payload = $tokenDecoded->getPayload();
+
+header('Content-Type: application/json');
+
+echo json_encode([
+    'name' => $payload['name'] ?? 'unknown',
+]);
 ```
