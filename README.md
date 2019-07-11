@@ -33,11 +33,15 @@ When using this package, you will be mostly interested in two classes: ```TokenE
 
 ### TokenDecoded
 
-This class is representation of decoded token. It consist of header and payload. If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
+This class is representation of decoded token. It consist of header and payload.
+
+If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
 
 ### TokenEncoded
 
 This class is representation of encoded token. You can decode token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
+
+You may also need to create encoded token directly from a string, so you can use ```$tokenEncoded = new TokenEncoded($tokenString)```.
 
 > Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
 issued by trusted party. It does not protect your data passed in payload!
