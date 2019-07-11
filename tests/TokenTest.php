@@ -47,8 +47,18 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(UndefinedAlgorithmException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
+    
+    public function test_encoding_unsupported_algorithm()
+    {
+        $this->expectException(UnsupportedAlgorithmException::class);
         
-    public function test_unsupported_token_type()
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
+        $tokenEncoded = $tokenDecoded->encode($key);
+    }
+          
+    public function test_building_encoded_token_unsupported_token_type()
     {
         $header = base64_encode(json_encode(['typ' => 'XYZ']));
         $payload = base64_encode(json_encode([]));
@@ -60,7 +70,7 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded = new TokenEncoded($token);
     }
 
-    public function test_unsupported_algorithm()
+    public function test_validating_token_unsupported_algorithm()
     {
         $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
         $payload = base64_encode(json_encode([]));
@@ -74,7 +84,7 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded->validate($key);
     }
     
-    public function test_invalid_exp_claim()
+    public function test_building_encoded_token_invalid_exp_claim_type()
     {
         $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = base64_encode(json_encode(['exp' => 'string']));
@@ -85,10 +95,9 @@ class TokenEncodedTest extends TokenBaseTest
         
         $this->expectException(InvalidClaimTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
-        $tokenEncoded->validate($key);
     }
         
-    public function test_invalid_nbf_claim()
+    public function test_building_encoded_token_invalid_nbf_claim_type()
     {
         $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = base64_encode(json_encode(['nbf' => 'string']));
@@ -99,10 +108,9 @@ class TokenEncodedTest extends TokenBaseTest
         
         $this->expectException(InvalidClaimTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
-        $tokenEncoded->validate($key);
     }
             
-    public function test_invalid_iat_claim()
+    public function test_building_encoded_token_invalid_iat_claim_type()
     {
         $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = base64_encode(json_encode(['iat' => 'string']));
@@ -113,7 +121,6 @@ class TokenEncodedTest extends TokenBaseTest
         
         $this->expectException(InvalidClaimTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
-        $tokenEncoded->validate($key);
     }
     
     public function test_payload_decoding()
