@@ -155,28 +155,28 @@ try {
 
 ### Creating new token with expiration date (exp)
 
-You may need to define expiration date for your token. To do so, you need to provide timestamp of expiration date into token's header under ```exp``` key.
+You may need to define expiration date for your token. To do so, you need to provide timestamp of expiration date into token's payload under ```exp``` key.
 
 ```
-$tokenDecoded = new TokenDecoded(['exp' => time() + 1000], $payload);
+$tokenDecoded = new TokenDecoded([], ['exp' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
 ### Creating new token with not before date (nbf)
 
-You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's header under ```exp``` key.
+You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's payload under ```exp``` key.
 
 ```
-$tokenDecoded = new TokenDecoded(['nbf' => time() + 1000], $payload);
+$tokenDecoded = new TokenDecoded([], ['nbf' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
 ### Creating new token with issued at date (iat)
 
-This is simillar to ```nbf```, but here you need to provide timestamp of issued at date into token's header under ```iat``` key.
+This is simillar to ```nbf```, but here you need to provide timestamp of issued at date into token's payload under ```iat``` key.
 
 ```
-$tokenDecoded = new TokenDecoded(['iat' => time() + 1000], $payload);
+$tokenDecoded = new TokenDecoded([], ['iat' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
