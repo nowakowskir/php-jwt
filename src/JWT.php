@@ -18,7 +18,7 @@ class JWT
 {
 
     /**
-     * List of available algorithms keys.
+     * List of available algorithm keys.
      */
     const ALGORITHM_HS256 = 'HS256';
     const ALGORITHM_HS384 = 'HS384';
@@ -28,7 +28,7 @@ class JWT
     const ALGORITHM_RS512 = 'RS512';
     
     /**
-     * Default algorithm key that will be used in case no algorithm was provided in token's header nor as parameter to encode method.
+     * Default algorithm key that will be used when encoding token in case no algorithm was provided in token's header nor as parameter to encode method.
      */
     const DEFAULT_ALGORITHM = self::ALGORITHM_HS256;
     
@@ -53,7 +53,8 @@ class JWT
      */
     public static function decode(TokenEncoded $tokenEncoded): TokenDecoded
     {
-        return new TokenDecoded(json_decode(base64_decode($tokenEncoded->getHeader()), true), json_decode(base64_decode($tokenEncoded->getPayload()), true));
+        return new TokenDecoded(json_decode(base64_decode($tokenEncoded->getHeader()), true),
+            json_decode(base64_decode($tokenEncoded->getPayload()), true));
     }
 
     /**
@@ -140,9 +141,9 @@ class JWT
      * Following things should be verified:
      * - if token contains algorithm defined in its header
      * - if token integrity is met using provided key
-     * - if token contains expiration date (exp) in its header - current time against this date
-     * - if token contains not before date (nbf) in its header - current time against this date
-     * - if token contains issued at date (iat) in its header - current time against this date
+     * - if token contains expiration date (exp) in its payload - current time against this date
+     * - if token contains not before date (nbf) in its payload - current time against this date
+     * - if token contains issued at date (iat) in its payload - current time against this date
      * 
      * @param TokenEncoded  $tokenEncoded   Encoded token
      * @param string        $key            Key used to signature verification
