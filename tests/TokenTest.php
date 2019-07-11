@@ -9,6 +9,7 @@ use Nowakowskir\JWT\Exceptions\EmptyTokenException;
 use Nowakowskir\JWT\Exceptions\InvalidStructureException;
 use Nowakowskir\JWT\Exceptions\UndefinedAlgorithmException;
 use Nowakowskir\JWT\Exceptions\UnsupportedAlgorithmException;
+use Nowakowskir\JWT\Exceptions\InvalidClaimTypeException;
 use Nowakowskir\JWT\Exceptions\UnsupportedTokenTypeException;
 use Nowakowskir\JWT\Exceptions\TokenExpiredException;
 use Nowakowskir\JWT\Exceptions\TokenInactiveException;
@@ -73,6 +74,48 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded->validate($key);
     }
     
+    public function test_invalid_exp_claim()
+    {
+        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = base64_encode(json_encode(['exp' => 'string']));
+        $signature = base64_encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+        $tokenEncoded->validate($key);
+    }
+        
+    public function test_invalid_nbf_claim()
+    {
+        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = base64_encode(json_encode(['nbf' => 'string']));
+        $signature = base64_encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+        $tokenEncoded->validate($key);
+    }
+            
+    public function test_invalid_iat_claim()
+    {
+        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = base64_encode(json_encode(['iat' => 'string']));
+        $signature = base64_encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+        $tokenEncoded->validate($key);
+    }
+    
     public function test_payload_decoding()
     {
         $key = ']V@IaC1%fU,DrVI';
@@ -93,12 +136,12 @@ class TokenEncodedTest extends TokenBaseTest
         $timestamp = time();
         
         $tokenDecoded = new TokenDecoded();
-        $tokenDecoded->setHeader(['exp' => $timestamp]);
+        $tokenDecoded->setHeader(['xyz' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
         
         $header = $tokenEncoded->decode()->getHeader();
-        $this->assertTrue(array_key_exists('exp', $header));
-        $this->assertEquals($timestamp, $header['exp']);
+        $this->assertTrue(array_key_exists('xyz', $header));
+        $this->assertEquals($timestamp, $header['xyz']);
     }
     
     public function test_payload_decoding_indirect()
