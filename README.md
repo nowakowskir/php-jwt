@@ -225,13 +225,13 @@ echo $response;
 
 ```
 if (! array_key_exists('HTTP_AUTHENTICATION', $_SERVER)) {
-    // Handle no existing token
+    // Handle no authentication header received
 }
 
 try {
     $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHENTICATION']);
 } catch (Exception $e) {
-    // Handle token creation issue
+    // Handle token parsing exceptions
 }
 
 $publicKey = file_get_contents('./public.pub');
@@ -241,7 +241,7 @@ try {
 } catch (IntegrityViolationException $e) {
     // Handle invalid token
 } catch (Exception $e) {
-    // Handle other exceptions
+    // Handle other validation exceptions
 }
 
 $tokenDecoded = $tokenEncoded->decode();
