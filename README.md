@@ -244,7 +244,7 @@ $publicKey = file_get_contents('./public.pub');
 try {
     $tokenEncoded->validate($publicKey);
 } catch (IntegrityViolationException $e) {
-    // Handle invalid token
+    // Handle token not trusted
 } catch (Exception $e) {
     // Handle other validation exceptions
 }
