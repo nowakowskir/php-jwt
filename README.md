@@ -39,7 +39,7 @@ This class is representation of decoded token. It consist of header and payload.
 
 This class is representation of encoded token. You can decode token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
 
-> Please note, providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
+> Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
 issued by trusted party. It does not protect your data passed in payload!
 
 You should use ```$tokenEncoded->decode()``` method if you need to access token's header or payload only.
@@ -83,7 +83,7 @@ $tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
 var_dump($tokenEncoded->decode()->getPayload());
 ```
 
-> Please note, providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
+> Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
 issued by trusted party. It does not protect your data passed in payload!
 
 ### Creating new token with custom algorithm
@@ -106,7 +106,7 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS512);
 // HS384 algorithm will take priority
 ```
 
-Please note there is no need to provide algorithm when validating token as algorithm is already contained in token's header.
+Please note that there is no need to provide algorithm when validating token as algorithm is already contained in token's header.
 
 ```
 $tokenEncoded = new TokenEncoded($tokenString);
