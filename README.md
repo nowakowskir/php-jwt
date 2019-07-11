@@ -74,7 +74,7 @@ try {
 } catch(TokenExpiredException $e) {
     // Token expired (exp date reached)
 } catch(TokenInactiveException $e) {
-    // Token is not yet active (nbf or iat dates not reached)
+    // Token is not yet active (nbf date not reached)
 } catch(Exception $e) {
     // Something else gone wrong
 }
@@ -171,18 +171,9 @@ $tokenDecoded = new TokenDecoded([], ['nbf' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key);
 ```
 
-### Creating new token with issued at date (iat)
+### Solving clock differences issue between servers (exp, nbf)
 
-This is simillar to ```nbf```, but here you need to provide timestamp of issued at date into token's payload under ```iat``` key.
-
-```
-$tokenDecoded = new TokenDecoded([], ['iat' => time() + 1000]);
-$tokenEncoded = $tokenDecoded->encode($key);
-```
-
-### Solving clock differences issue between servers (exp, nbf, iat)
-
-Because clock may vary across the servers, you can use so called ```leeway``` to solve this issue when validating token. It's some kind of margin which will be taken into account when validating token (```exp```, ```nbf```, ```iat```).
+Because clock may vary across the servers, you can use so called ```leeway``` to solve this issue when validating token. It's some kind of margin which will be taken into account when validating token (```exp```, ```nbf```).
 
 ```
 $leeway = 500;
