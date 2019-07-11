@@ -95,19 +95,19 @@ class Validation
     }
     
     /**
-     * Checks if given key exists in the header and if so, checks if it's of integer type.
+     * Checks if given key exists in the payload and if so, checks if it's of integer type.
      * 
-     * @param string    $claim      Claim name
-     * @param array     $header     Header array
+     * @param string    $claim       Claim name
+     * @param array     $payload     Payload array
      * 
      * @throws InvalidClaimTypeException
      */
-    public static function checkClaimType(string $claim, string $type, array $header): void
+    public static function checkClaimType(string $claim, string $type, array $payload): void
     {
         switch ($type) {
             case 'integer':
             default:
-                if (array_key_exists($claim, $header) && ! is_int($header[$claim])) {
+                if (array_key_exists($claim, $payload) && ! is_int($payload[$claim])) {
                     throw new InvalidClaimTypeException(sprintf('Invalid %s claim - %s value required', $claim, $type));
                 }
                 break;

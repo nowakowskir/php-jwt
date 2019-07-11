@@ -159,6 +159,7 @@ class JWT
 
         $signature = base64_decode($tokenEncoded->getSignature());
         $header = $tokenDecoded->getHeader();
+        $payload = $tokenDecoded->getPayload();
 
         list($function, $type) = self::getAlgorithmData($header['alg']);
 
@@ -178,16 +179,16 @@ class JWT
                 break;
         }
            
-        if (array_key_exists('exp', $header)) {
-            Validation::checkExpirationDate($header['exp'], $leeway);
+        if (array_key_exists('exp', $payload)) {
+            Validation::checkExpirationDate($payload['exp'], $leeway);
         }
         
-        if (array_key_exists('nbf', $header)) {
-            Validation::checkNotBeforeDate($header['nbf'], $leeway);
+        if (array_key_exists('nbf', $payload)) {
+            Validation::checkNotBeforeDate($payload['nbf'], $leeway);
         }
         
-        if (array_key_exists('iat', $header)) {
-            Validation::checkNotBeforeDate($header['iat'], $leeway);
+        if (array_key_exists('iat', $payload)) {
+            Validation::checkNotBeforeDate($payload['iat'], $leeway);
         }
     }
     

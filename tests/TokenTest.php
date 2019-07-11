@@ -61,7 +61,7 @@ class TokenEncodedTest extends TokenBaseTest
 
     public function test_unsupported_algorithm()
     {
-        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'unsupported']));
+        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
         $payload = base64_encode(json_encode([]));
         $signature = base64_encode('signature');
         
@@ -224,7 +224,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
         
         try {
-            $tokenDecoded = new TokenDecoded(['exp' => $timestamp], []);
+            $tokenDecoded = new TokenDecoded([], ['exp' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
             $tokenEncoded->validate($key);
@@ -243,7 +243,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $timestamp = time() - 100;
         
-        $tokenDecoded = new TokenDecoded(['exp' => $timestamp], []);
+        $tokenDecoded = new TokenDecoded([], ['exp' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
     
         $tokenEncoded->validate($key);
@@ -258,7 +258,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
         
         try {
-            $tokenDecoded = new TokenDecoded(['exp' => $timestamp], []);
+            $tokenDecoded = new TokenDecoded([], ['exp' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
             $tokenEncoded->validate($key, 101);
@@ -277,7 +277,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $timestamp = time() - 100;
 
-        $tokenDecoded = new TokenDecoded(['exp' => $timestamp], []);
+        $tokenDecoded = new TokenDecoded([], ['exp' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
 
         $tokenEncoded->validate($key, 100);
@@ -292,7 +292,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
         
         try {
-            $tokenDecoded = new TokenDecoded(['nbf' => $timestamp], []);
+            $tokenDecoded = new TokenDecoded([], ['nbf' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
             $tokenEncoded->validate($key);
@@ -311,7 +311,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $timestamp = time() + 100;
         
-        $tokenDecoded = new TokenDecoded(['nbf' => $timestamp], []);
+        $tokenDecoded = new TokenDecoded([], ['nbf' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
     
         $tokenEncoded->validate($key);
@@ -326,7 +326,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
         
         try {
-            $tokenDecoded = new TokenDecoded(['nbf' => $timestamp], []);
+            $tokenDecoded = new TokenDecoded([], ['nbf' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
             $tokenEncoded->validate($key, 100);
@@ -347,7 +347,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $exception = false;
 
-        $tokenDecoded = new TokenDecoded(['nbf' => $timestamp], []);
+        $tokenDecoded = new TokenDecoded([], ['nbf' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
 
         $tokenEncoded->validate($key, 99);
@@ -362,7 +362,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
         
         try {
-            $tokenDecoded = new TokenDecoded(['iat' => $timestamp], []);
+            $tokenDecoded = new TokenDecoded([], ['iat' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
             $tokenEncoded->validate($key);
@@ -381,7 +381,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $timestamp = time() + 100;
         
-        $tokenDecoded = new TokenDecoded(['iat' => $timestamp], []);
+        $tokenDecoded = new TokenDecoded([], ['iat' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
     
         $tokenEncoded->validate($key);
@@ -396,7 +396,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
         
         try {
-            $tokenDecoded = new TokenDecoded(['iat' => $timestamp], []);
+            $tokenDecoded = new TokenDecoded([], ['iat' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
             $tokenEncoded->validate($key, 100);
@@ -417,7 +417,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $exception = false;
 
-        $tokenDecoded = new TokenDecoded(['iat' => $timestamp], []);
+        $tokenDecoded = new TokenDecoded([], ['iat' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
 
         $tokenEncoded->validate($key, 99);

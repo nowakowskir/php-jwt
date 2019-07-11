@@ -51,11 +51,14 @@ class TokenEncoded
         list($header, $payload, $signature) = $elements;
         
         $headerArray = json_decode(base64_decode($header), true);
+        $payloadArray = json_decode(base64_decode($payload), true);
+        
         Validation::checkTokenType($headerArray);
         Validation::checkAlgorithm($headerArray);
-        Validation::checkClaimType('nbf', 'integer', $headerArray);
-        Validation::checkClaimType('exp', 'integer', $headerArray);
-        Validation::checkClaimType('iat', 'integer', $headerArray);
+        
+        Validation::checkClaimType('nbf', 'integer', $payloadArray);
+        Validation::checkClaimType('exp', 'integer', $payloadArray);
+        Validation::checkClaimType('iat', 'integer', $payloadArray);
         
         $this->token = $token;
         $this->payload = $payload;
