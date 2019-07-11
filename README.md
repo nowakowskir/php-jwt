@@ -46,7 +46,7 @@ You may also need to create encoded token directly from a string, so you can use
 > Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
 issued by trusted party. It does not protect your data passed in payload!
 
-You should use ```$tokenEncoded->decode()``` method if you need to access token's header or payload only.
+You should use ```$tokenEncoded->decode()``` method only if you need to access token's header or payload.
 
 In order to validate token you should use ```$tokenEncoded->validate($key)``` method.
 
