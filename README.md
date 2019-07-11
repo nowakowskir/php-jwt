@@ -184,3 +184,72 @@ $leeway = 500;
 $tokenEncoded = new TokenEncoded($tokenString);
 $tokenEncoded->validate($key, $leeway);
 ```
+
+## Sample
+
+### Application
+
+Let's imagine we have API that is used by our frontend application. We have two parties: API and frontend application.
+
+You don't want to use cookies as your API is hosted on other domain and session is not shared across the servers. Passing user credentials in the API requests is also not a good idea. We need some other way of verification. Here JWT comes into play.
+
+Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authentication``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and is not tampered on the way.
+
+Let's see how we can implement interaction between those two applications.
+
+### Frontend
+
+```
+$payload = ['name' => 'john'];
+
+$tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], $payload);
+
+$privateKey = file_get_contents('./private.key');
+
+$tokenEncoded = $tokenDecoded->encode($privateKey);
+
+$opts = [
+  'http' => [
+    'method' => 'GET',
+    'header' => 'Authentication: ' . $tokenEncoded->__toString() . "\r\n",
+  ] ];
+
+$context = stream_context_create($opts);
+
+$response = file_get_contents('http://localhost/api/welcome', false, $context);
+
+echo $response;
+```
+
+### API
+
+```
+if (! array_key_exists('HTTP_AUTHENTICATION', $_SERVER)) {
+        // Handle no existing token
+}
+
+try {
+        $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHENTICATION']);
+} catch (Exception $e) {
+        // Handle token creation issue
+}
+
+$publicKey = file_get_contents('./public.pub');
+
+try {
+        $tokenEncoded->validate($publicKey);
+} catch (IntegrityViolationException $e) {
+        // Handle invalid token
+} catch (Exception $e) {
+        // Handle other exceptions
+}
+
+$tokenDecoded = $tokenEncoded->decode();
+
+$payload = $tokenDecoded->getPayload();
+
+header('Content-Type: application/json');
+echo json_encode([
+        'name' => $payload['name'] ?? 'unknown',
+]);
+```
