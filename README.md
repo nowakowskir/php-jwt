@@ -50,6 +50,47 @@ You should use ```$tokenEncoded->decode()``` method only if you need to access t
 
 In order to validate token you should use ```$tokenEncoded->validate($key)``` method.
 
+### Unsecured tokens
+
+Creating unsecured tokens is not possible. You can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```.
+
+```
+// Token with missing signature
+$tokenString = 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1c2VyMTIzIiwic2Vzc2lvbiI6ImNoNzJnc2IzMjAwMDB1ZG9jbDM2M2VvZnkiLCJuYW1lIjoiUHJldHR5IE5hbWUiLCJsYXN0cGFnZSI6Ii92aWV3cy9zZXR0aW5ncyJ9.'
+
+try {
+$tokenEncoded = new TokenEncoded($tokenString);
+} catch (UnsecureTokenException $e) {
+    // Unsecure token
+}
+```
+
+```
+// Crafted token with none algorithm
+$header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
+$payload = Base64Url::encode(json_encode([]));
+$signature = Base64Url::encode('signature');
+        
+$tokenString = sprintf('%s.%s.%s', $header, $payload, $signature);
+
+try {
+    $tokenEncoded = $tokenEncoded($tokenString);
+} catch (UnsecureTokenException $e) {
+    // Unsecure token
+}
+```
+
+```
+// Creating token with none algorithm
+$tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
+
+try {
+    $tokenEncoded = $tokenDecoded->encode($key);
+} catch (UnsecureTokenException $e) {
+    // Unsecure token
+}
+```
+
 ## Usage
 
 ### Creating new token
@@ -192,6 +233,8 @@ You don't want to use cookies as your API is hosted on other domain and session 
 Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authentication``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and was not tampered on the way.
 
 Let's see how we can implement interaction between those two applications.
+
+> Be aware that the following demonstrations arenotmeant to beused in production. These samples are for educational purposes only and thus remain simple and to thepoint.
 
 ### Frontend
 
