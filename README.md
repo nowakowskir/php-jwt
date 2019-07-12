@@ -80,6 +80,17 @@ try {
 }
 ```
 
+```
+// Creating token with none algorithm
+$tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
+
+try {
+    $tokenEncoded = $tokenDecoded->encode($key);
+} catch (UnsecureTokenException $e) {
+    // Unsecured token
+}
+```
+
 ## Usage
 
 ### Creating new token
