@@ -193,6 +193,8 @@ Your frontend application can generate JWT token containing some payload and sig
 
 Let's see how we can implement interaction between those two applications.
 
+> Be aware that the following demonstrations arenotmeant to beused in production. These samples are for educational purposes only and thus remain simple and to thepoint.
+
 ### Frontend
 
 ```
