@@ -52,7 +52,33 @@ In order to validate token you should use ```$tokenEncoded->validate($key)``` me
 
 ### Unsecured tokens
 
-Creating unsecured tokens is not possible. You can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```. 
+Creating unsecured tokens is not possible. You can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```.
+
+```
+// Token with missing signature
+$tokenString = 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1c2VyMTIzIiwic2Vzc2lvbiI6ImNoNzJnc2IzMjAwMDB1ZG9jbDM2M2VvZnkiLCJuYW1lIjoiUHJldHR5IE5hbWUiLCJsYXN0cGFnZSI6Ii92aWV3cy9zZXR0aW5ncyJ9.'
+
+try {
+$tokenEncoded = new TokenEncoded($tokenString);
+} catch (UnsecureTokenException $e) {
+    // Unsecured token
+}
+```
+
+```
+// Crafted token with none algorithm
+$header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
+$payload = Base64Url::encode(json_encode([]));
+$signature = Base64Url::encode('signature');
+        
+$tokenString = sprintf('%s.%s.%s', $header, $payload, $signature);
+
+try {
+    $tokenEncoded = $tokenEncoded($tokenString);
+} catch (UnsecureTokenException $e) {
+    // Unsecured token
+}
+```
 
 ## Usage
 
