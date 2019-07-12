@@ -2,6 +2,9 @@
 namespace Nowakowskir\JWT;
 
 use \DateTime;
+use Nowakowskir\JWT\Base64Url;
+use Nowakowskir\JWT\Exceptions\UnsecureTokenException;
+use Nowakowskir\JWT\Exceptions\UnsupportedAlgorithmException;
 use Nowakowskir\JWT\Exceptions\TokenExpiredException;
 use Nowakowskir\JWT\Exceptions\TokenInactiveException;
 use Nowakowskir\JWT\Exceptions\InvalidClaimTypeException;
@@ -53,20 +56,6 @@ class Validation
     }
     
     /**
-     * Checks if algorithm has been defined in token's header.
-     * 
-     * @param array   $header
-     * 
-     * @throws UnexpectedValueException
-     */
-    public static function checkAlgorithm(array $header): void
-    {
-        if (! array_key_exists('alg', $header)) {
-            throw new UndefinedAlgorithmException('Missing algorithm in token header');
-        }
-    }
-    
-    /**
      * Checks token structure.
      * 
      * @param string  $token Token
@@ -83,15 +72,54 @@ class Validation
 
         list($header, $payload, $signature) = $elements;
 
-        if (null === json_decode(base64_decode($header))) {
+        if (null === json_decode(Base64Url::decode($header))) {
             throw new InvalidStructureException('Invalid header');
         }
-        if (null === json_decode(base64_decode($payload))) {
+        if (null === json_decode(Base64Url::decode($payload))) {
             throw new InvalidStructureException('Invalid payload');
         }
-        if (false === base64_decode($signature)) {
+        if (false === Base64Url::decode($signature)) {
             throw new InvalidStructureException('Invalid signature');
         }
+    }
+    
+    public static function checkAlgorithmDefined(array $header)
+    {    
+        if (! array_key_exists('alg', $header)) {
+            throw new UndefinedAlgorithmException('Missing algorithm in token header');
+        }       
+    }
+    
+    /**
+     * Checks if algorithm has been provided and is supported.
+     * 
+     * @param string $algorithm
+     * 
+     * @throws UnsecureTokenException
+     * @throws UnsupportedAlgorithmException
+     */
+    public static function checkAlgorithmSupported(string $algorithm)
+    {
+        if (strtolower($algorithm) === 'none') {
+            throw new UnsecureTokenException('Unsecure token are not supported: none algorithm provided');
+        }
+        
+        if (! array_key_exists($algorithm, JWT::ALGORITHMS)) {
+            throw new UnsupportedAlgorithmException('Invalid algorithm');
+        }
+    }
+    
+    /**
+     * 
+     * @param string $token
+     * @return void
+     * @throws UnsecureTokenException
+     */
+    public static function checkSignatureMissing(string $signature): void
+    {
+        if (strlen($signature) === 0) {
+            throw new UnsecureTokenException('Unsecure token are not supported: signature is missing');
+        }    
     }
     
     /**

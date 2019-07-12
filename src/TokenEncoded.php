@@ -1,6 +1,7 @@
 <?php
 namespace Nowakowskir\JWT;
 
+use Nowakowskir\JWT\Base64Url;
 use Nowakowskir\JWT\JWT;
 use Nowakowskir\JWT\Validation;
 use Nowakowskir\JWT\Exceptions\EmptyTokenException;
@@ -50,11 +51,13 @@ class TokenEncoded
         $elements = explode('.', $token);
         list($header, $payload, $signature) = $elements;
         
-        $headerArray = json_decode(base64_decode($header), true);
-        $payloadArray = json_decode(base64_decode($payload), true);
+        $headerArray = json_decode(Base64Url::decode($header), true);
+        $payloadArray = json_decode(Base64Url::decode($payload), true);
         
         Validation::checkTokenType($headerArray);
-        Validation::checkAlgorithm($headerArray);
+        Validation::checkAlgorithmDefined($headerArray);
+        Validation::checkAlgorithmSupported($headerArray['alg']);
+        Validation::checkSignatureMissing($signature);
         
         Validation::checkClaimType('nbf', 'integer', $payloadArray);
         Validation::checkClaimType('exp', 'integer', $payloadArray);

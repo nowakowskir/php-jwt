@@ -2,6 +2,7 @@
 namespace Nowakowskir\JWT;
 
 use \Exception;
+use Nowakowskir\JWT\Base64Url;
 use Nowakowskir\JWT\Validation;
 use Nowakowskir\JWT\Exceptions\SigningFailedException;
 use Nowakowskir\JWT\Exceptions\IntegrityViolationException;
@@ -53,8 +54,8 @@ class JWT
      */
     public static function decode(TokenEncoded $tokenEncoded): TokenDecoded
     {
-        return new TokenDecoded(json_decode(base64_decode($tokenEncoded->getHeader()), true),
-            json_decode(base64_decode($tokenEncoded->getPayload()), true));
+        return new TokenDecoded(json_decode(Base64Url::decode($tokenEncoded->getHeader()), true),
+            json_decode(Base64Url::decode($tokenEncoded->getPayload()), true));
     }
 
     /**
@@ -74,11 +75,11 @@ class JWT
         ]);
 
         $elements = [];
-        $elements[] = base64_encode(json_encode($header));
-        $elements[] = base64_encode(json_encode($tokenDecoded->getPayload()));
+        $elements[] = Base64Url::encode(json_encode($header));
+        $elements[] = Base64Url::encode(json_encode($tokenDecoded->getPayload()));
 
         $signature = self::sign(implode('.', $elements), $key, $header['alg']);
-        $elements[] = base64_encode($signature);
+        $elements[] = Base64Url::encode($signature);
 
         return new TokenEncoded(implode('.', $elements));
     }
@@ -159,7 +160,7 @@ class JWT
     {
         $tokenDecoded = self::decode($tokenEncoded);
 
-        $signature = base64_decode($tokenEncoded->getSignature());
+        $signature = Base64Url::decode($tokenEncoded->getSignature());
         $header = $tokenDecoded->getHeader();
         $payload = $tokenDecoded->getPayload();
 
@@ -201,9 +202,7 @@ class JWT
      */
     public static function getAlgorithmData(string $algorithm): array
     {
-        if (! array_key_exists($algorithm, self::ALGORITHMS)) {
-            throw new UnsupportedAlgorithmException('Invalid algorithm');
-        }
+        Validation::checkAlgorithmSupported($algorithm);
 
         return self::ALGORITHMS[$algorithm];
     }

@@ -2,9 +2,11 @@
 
 namespace Nowakowskir\JWT\Tests;
 
+use Nowakowskir\JWT\Base64Url;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
 use Nowakowskir\JWT\JWT;
+use Nowakowskir\JWT\Exceptions\UnsecureTokenException;
 use Nowakowskir\JWT\Exceptions\EmptyTokenException;
 use Nowakowskir\JWT\Exceptions\InvalidStructureException;
 use Nowakowskir\JWT\Exceptions\UndefinedAlgorithmException;
@@ -35,24 +37,51 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidStructureException::class);
         $tokenEncoded = new TokenEncoded('aaa.bbb.ccc');
     }
+
+    public function test_building_encoded_token_with_none_algorithm()
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
+        $payload = Base64Url::encode(json_encode([]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(UnsecureTokenException::class);
+        $tokenEncoded = new TokenEncoded($token);
+        
+        $tokenEncoded->validate($key);
+    }
     
     public function test_building_encoded_token_with_missing_algorithm()
     {
-        $header = base64_encode(json_encode(['typ' => 'JWT']));
-        $payload = base64_encode(json_encode([]));
-        $signature = base64_encode('signature');
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT']));
+        $payload = Base64Url::encode(json_encode([]));
+        $signature = Base64Url::encode('signature');
         
         $token = sprintf('%s.%s.%s', $header, $payload, $signature);
         
         $this->expectException(UndefinedAlgorithmException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
-          
+
+    public function test_building_encoded_token_with_empty_signature()
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode([]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.', $header, $payload);
+        
+        $this->expectException(UnsecureTokenException::class);
+        $tokenEncoded = new TokenEncoded($token);
+    }
+        
     public function test_building_encoded_token_with_unsupported_token_type()
     {
-        $header = base64_encode(json_encode(['typ' => 'XYZ']));
-        $payload = base64_encode(json_encode([]));
-        $signature = base64_encode('signature');
+        $header = Base64Url::encode(json_encode(['typ' => 'XYZ']));
+        $payload = Base64Url::encode(json_encode([]));
+        $signature = Base64Url::encode('signature');
         
         $token = sprintf('%s.%s.%s', $header, $payload, $signature);
         
@@ -62,9 +91,9 @@ class TokenEncodedTest extends TokenBaseTest
     
     public function test_building_encoded_token_with_invalid_exp_claim_type()
     {
-        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
-        $payload = base64_encode(json_encode(['exp' => 'string']));
-        $signature = base64_encode('signature');
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['exp' => 'string']));
+        $signature = Base64Url::encode('signature');
         
         $token = sprintf('%s.%s.%s', $header, $payload, $signature);
         $key = ']V@IaC1%fU,DrVI';
@@ -75,9 +104,9 @@ class TokenEncodedTest extends TokenBaseTest
         
     public function test_building_encoded_token_with_invalid_nbf_claim_type()
     {
-        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
-        $payload = base64_encode(json_encode(['nbf' => 'string']));
-        $signature = base64_encode('signature');
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['nbf' => 'string']));
+        $signature = Base64Url::encode('signature');
         
         $token = sprintf('%s.%s.%s', $header, $payload, $signature);
         $key = ']V@IaC1%fU,DrVI';
@@ -88,9 +117,9 @@ class TokenEncodedTest extends TokenBaseTest
             
     public function test_building_encoded_token_with_invalid_iat_claim_type()
     {
-        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
-        $payload = base64_encode(json_encode(['iat' => 'string']));
-        $signature = base64_encode('signature');
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['iat' => 'string']));
+        $signature = Base64Url::encode('signature');
         
         $token = sprintf('%s.%s.%s', $header, $payload, $signature);
         $key = ']V@IaC1%fU,DrVI';
@@ -110,15 +139,25 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], []);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-    
+
+    public function test_encoding_with_none_algorithm()
+    {
+        $this->expectException(UnsecureTokenException::class);
+        
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
+        $tokenEncoded = $tokenDecoded->encode($key);        
+    }
+        
     public function test_encoding_with_unsupported_algorithm()
     {
         $this->expectException(UnsupportedAlgorithmException::class);
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
-        $tokenEncoded = $tokenDecoded->encode($key);
+        $tokenDecoded = new TokenDecoded(['alg' => 'XYZ'], []);
+        $tokenEncoded = $tokenDecoded->encode($key);       
     }
     
     public function test_encoding_with_wrong_exp_claim_type()
@@ -190,33 +229,6 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['jti' => 1]);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-
-    public function test_validating_with_unsupported_algorithm()
-    {
-        $header = base64_encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
-        $payload = base64_encode(json_encode([]));
-        $signature = base64_encode('signature');
-        
-        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
-        $key = ']V@IaC1%fU,DrVI';
-        
-        $this->expectException(UnsupportedAlgorithmException::class);
-        $tokenEncoded = new TokenEncoded($token);
-        $tokenEncoded->validate($key);
-    }
-
-    public function test_decoding_payload()
-    {
-        $key = ']V@IaC1%fU,DrVI';
-        
-        $tokenDecoded = new TokenDecoded([], ['success' => 1]);
-        $tokenEncoded = $tokenDecoded->encode($key);
-        
-        $payload = $tokenEncoded->decode()->getPayload();
-        $this->assertTrue(array_key_exists('success', $payload));
-        $this->assertEquals(1, $payload['success']);
-    }
-    
     
     public function test_encoding_decoding_with_indirect_header()
     {
@@ -287,6 +299,18 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertEquals('JWT', $header['typ']); 
     }
     
+    public function test_decoding_payload()
+    {
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $tokenDecoded = new TokenDecoded([], ['success' => 1]);
+        $tokenEncoded = $tokenDecoded->encode($key);
+        
+        $payload = $tokenEncoded->decode()->getPayload();
+        $this->assertTrue(array_key_exists('success', $payload));
+        $this->assertEquals(1, $payload['success']);
+    }
+    
     public function test_validation_integrity_hs256()
     {
         $this->token_integrity(JWT::ALGORITHM_HS256, ']V@IaC1%fU,DrVI');
@@ -345,6 +369,21 @@ class TokenEncodedTest extends TokenBaseTest
     public function test_validation_integrity_violation_rs512()
     {
         $this->token_integrity_violation(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
+    }
+
+
+    public function test_validating_with_unsupported_algorithm()
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'XYZ']));
+        $payload = Base64Url::encode(json_encode([]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(UnsupportedAlgorithmException::class);
+        $tokenEncoded = new TokenEncoded($token);
+        $tokenEncoded->validate($key);
     }
 
     public function test_validation_expiration_date_valid()
