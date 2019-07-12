@@ -50,6 +50,10 @@ You should use ```$tokenEncoded->decode()``` method only if you need to access t
 
 In order to validate token you should use ```$tokenEncoded->validate($key)``` method.
 
+### Unsecured tokens
+
+Creating unsecured tokens is not possible. You can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```. 
+
 ## Usage
 
 ### Creating new token
