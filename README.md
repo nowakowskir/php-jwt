@@ -49,7 +49,7 @@ If you want to create encoded token, you just need to prepare decoded version of
 
 You may also want to create encoded token directly from a string, so you can use ```$tokenEncoded = new TokenEncoded($tokenString)```.
 
-You should use ```$tokenEncoded->decode()``` method together with ```$tokenEncoded->validate($key)```. only in special cases for example if you need to access token's header or payload without checking if token is valid or not at this point.
+You should use ```$tokenEncoded->decode()``` method together with ```$tokenEncoded->validate($key)```.
 
 In order to use the decoded payload make sure your token goes through validate process first. Otherwise, payload can not be treated as trusted!
 
