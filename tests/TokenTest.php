@@ -49,8 +49,6 @@ class TokenEncodedTest extends TokenBaseTest
         
         $this->expectException(UnsecureTokenException::class);
         $tokenEncoded = new TokenEncoded($token);
-        
-        $tokenEncoded->validate($key);
     }
     
     public function test_building_encoded_token_with_missing_algorithm()
