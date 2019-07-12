@@ -35,24 +35,71 @@ When using this package, you will be mostly interested in two classes: ```TokenE
 
 This class is representation of decoded token. It consist of header and payload.
 
-If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
+You can decode token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
 
 ### TokenEncoded
 
-This class is representation of encoded token. You can decode token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
+This class is representation of encoded token. 
+
+If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
 
 You may also need to create encoded token directly from a string, so you can use ```$tokenEncoded = new TokenEncoded($tokenString)```.
 
-> Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
-issued by trusted party. It does not protect your data passed in payload!
+> Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. Read more about this in *Security best practices section*!
 
-You should use ```$tokenEncoded->decode()``` method only if you need to access token's header or payload.
+You should use ```$tokenEncoded->decode()``` method together with ```$tokenEncoded->validate($key)```. only in special cases for example if you need to access token's header or payload without checking if token is valid or not at this point.
 
-In order to validate token you should use ```$tokenEncoded->validate($key)``` method.
+In order to use the decoded payload make sure your token goes through validate process first. Otherwise, payload can not be treated as trusted!
 
-### Unsecured tokens
+## Security best practices
 
-Creating unsecured tokens is not possible. You can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```.
+## Don't pass confidental data in token's payload
+
+Please note that providing key is not required to decode token, as its header and payload are public in signed JWT Tokens. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was issued by trusted party. It does not protect your data passed in payload!
+
+## Don't trust your payload until you validate token
+
+The only way of ensuring the token is valid is to use ```validate()``` method on encoded token. Please keep in mind that ```decode()``` method decodes the token and gives you access to its payload without any validation.
+
+## Enforce algorithm when encoding and validating token
+
+Due to security reasons you should choose algorithm whenever possible and stick to it in both issuer and verifier applications enforcing selected algorithm to be used when encoding and validating token.
+
+```
+$tokenDecoded = new TokenDecoded([], []);
+$tokenEndcoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
+```
+
+```
+$tokenEncoded = new TokenEncoded($tokenString);
+try {
+    $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
+} catch (IntegrityViolationException $e) {
+    // Token not trusted
+}
+```
+
+Trusting to algorithm defined in token's header without enforcing specific algorithm, in some circumstances may allow an attacker to successfuly validate a tampered token!
+
+## Generate strong private key
+
+Follow the instructions below to generate strong private key.
+
+## Protect your private key
+
+Make sure your private key is secured and not accessible by any unauthorized persons. Special care should be taken to file permissions. In most cases you should set ```600``` permission on your private key file, which means it's accessible only by file's owner.
+
+## Protect your public key
+
+Even if it's called public, try to share this key only when it's really necessary to do so.
+
+## Use token's expiration date
+
+Whenever possible, use token's expiration date so it's valid as short as necessary.
+
+## Unsecured tokens
+
+Creating unsecured tokens is not possible due to security reasons. Using this library you can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```.
 
 ```
 // Token with missing signature
@@ -104,7 +151,6 @@ echo 'Your token is: ' . $tokenEncoded->__toString();
 
 ### Validating existing token
 
-
 ```
 $tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
         
@@ -134,7 +180,7 @@ issued by trusted party. It does not protect your data passed in payload!
 
 ### Creating new token with custom algorithm
 
-By default ```HS256``` algorithm is used to encode tokens. You can change algorithm by either providing it under ```alg``` key in token's header or as a parameter to ```encode()``` method. Because it's possible to provide algorithm in two ways, algorithm defined in token's header takes priority if provided in both places.
+By default ```HS256``` algorithm is used to encode tokens. You can change algorithm by either providing it under ```alg``` key in token's header or as a parameter to ```encode()``` method. Because it's possible to provide algorithm in two ways, algorithm defined in ```encode()``` method takes priority if provided in both places.
 
 ```
 $tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_HS384], $payload);
@@ -149,10 +195,10 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS384);
 ```
 $tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_HS384], $payload);
 $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS512);
-// HS384 algorithm will take priority
+// HS512 algorithm will take priority
 ```
 
-Please note that there is no need to provide algorithm when validating token as algorithm is already contained in token's header.
+Please note that there is no need to provide algorithm when validating token as algorithm is already contained in token's header. Although for security reasons it's highly recommended to do so!
 
 ```
 $tokenEncoded = new TokenEncoded($tokenString);
@@ -241,11 +287,11 @@ Let's see how we can implement interaction between those two applications.
 ```
 $payload = ['name' => 'john'];
 
-$tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], $payload);
+$tokenDecoded = new TokenDecoded([], $payload);
 
 $privateKey = file_get_contents('./private.key');
 
-$tokenEncoded = $tokenDecoded->encode($privateKey);
+$tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
 
 $opts = [
     'http' => [
@@ -276,7 +322,7 @@ try {
 $publicKey = file_get_contents('./public.pub');
 
 try {
-    $tokenEncoded->validate($publicKey);
+    $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
 } catch (IntegrityViolationException $e) {
     // Handle token not trusted
 } catch (Exception $e) {
