@@ -128,13 +128,14 @@ class TokenEncoded
      * Performs auto validation using given key.
      * 
      * @param string        $key        Key
+     * @param string|null   $algorithm  Force algorithm to signature verification (recommended)
      * @param int|null      $leeway     Optional leeway
      * 
      * @return bool
      */
-    public function validate(string $key, ?int $leeway = null): void
+    public function validate(string $key, ?string $algorithm = null, ?int $leeway = null): void
     {
-        JWT::validate($this, $key, $leeway);
+        JWT::validate($this, $key, $algorithm, $leeway);
     }
 
     /**

@@ -63,7 +63,7 @@ class JWT
      * 
      * @param TokenDecoded  $tokenDecoded   Decoded token
      * @param string        $key            Key used to sign the token
-     * @param string|null   $algorithm      Algorithm to use if token's header doesn't contain algorithm definition
+     * @param string|null   $algorithm      Force algorithm even if token's header exists
      * 
      * @return TokenEncoded
      */
@@ -71,7 +71,7 @@ class JWT
     {
         $header = array_merge($tokenDecoded->getHeader(), [
             'typ' => array_key_exists('typ', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['typ'] : 'JWT',
-            'alg' => array_key_exists('alg', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['alg'] : ($algorithm ? $algorithm : self::DEFAULT_ALGORITHM),
+            'alg' => $algorithm ? $algorithm : (array_key_exists('alg', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['alg'] : self::DEFAULT_ALGORITHM),
         ]);
 
         $elements = [];
@@ -148,6 +148,7 @@ class JWT
      * 
      * @param TokenEncoded  $tokenEncoded   Encoded token
      * @param string        $key            Key used to signature verification
+     * @param string|null   $algorithm      Force algorithm to signature verification (recommended)
      * @param int|null      $leeway         Some optional period to avoid clock synchronization issues
      * @param array|null    $key            Claims to be excluded from validation
      * 
@@ -156,7 +157,7 @@ class JWT
      * @throws IntegrityViolationException
      * @throws UnsupportedAlgorithmException
      */
-    public static function validate(TokenEncoded $tokenEncoded, string $key, ?int $leeway = null, ?array $claimsExclusions = null): void
+    public static function validate(TokenEncoded $tokenEncoded, string $key, ?string $algorithm, ?int $leeway = null, ?array $claimsExclusions = null): void
     {
         $tokenDecoded = self::decode($tokenEncoded);
 
@@ -164,7 +165,7 @@ class JWT
         $header = $tokenDecoded->getHeader();
         $payload = $tokenDecoded->getPayload();
 
-        list($function, $type) = self::getAlgorithmData($header['alg']);
+        list($function, $type) = self::getAlgorithmData($algorithm ?? $header['alg']);
 
         switch ($function) {
             case 'hash_hmac':

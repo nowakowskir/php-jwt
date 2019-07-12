@@ -6,6 +6,7 @@ use Nowakowskir\JWT\Base64Url;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
 use Nowakowskir\JWT\JWT;
+use Nowakowskir\JWT\Exceptions\IntegrityViolationException;
 use Nowakowskir\JWT\Exceptions\UnsecureTokenException;
 use Nowakowskir\JWT\Exceptions\EmptyTokenException;
 use Nowakowskir\JWT\Exceptions\InvalidStructureException;
@@ -20,6 +21,70 @@ use Nowakowskir\JWT\Tests\TokenBaseTest;
 
 class TokenEncodedTest extends TokenBaseTest
 {
+    public function test_hacking_possible_with_no_algorithm_forcing()
+    {
+        // Issuer part
+        $issuerTokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], []);
+        $issuerPrivateKey = file_get_contents('./tests/keys/private.key');
+        $issuerTokenEncoded = $issuerTokenDecoded->encode($issuerPrivateKey);
+        $issuerTokenString = $issuerTokenEncoded->__toString();
+        
+        // Attacker part
+        $capturedPublicKey = file_get_contents('./tests/keys/public.pub');
+        $attackerTokenEncoded = new TokenEncoded($issuerTokenString);
+        $attackerTokenDecoded = $attackerTokenEncoded->decode();
+        $header = $attackerTokenDecoded->getHeader();
+        $header['alg'] = JWT::ALGORITHM_HS256;
+        $attackerTokenDecoded->setHeader($header);
+        $craftedTokenEncoded = $attackerTokenDecoded->encode($capturedPublicKey);
+        $craftedTokenString = $craftedTokenEncoded->__toString();
+        
+        // Verifier part
+        $verifierPublicKey = file_get_contents('./tests/keys/public.pub');
+        $verifierTokenEncoded = new TokenEncoded($craftedTokenString);
+        
+        $exception = false;
+        try {
+            $verifierTokenEncoded->validate($verifierPublicKey);
+        } catch (IntegrityViolationException $ex) {
+            $exception = true;
+        }
+        
+        $this->assertFalse($exception);
+    }
+    
+    public function test_hacking_not_possible_with_algorithm_forcing()
+    {
+        // Issuer part
+        $issuerTokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], []);
+        $issuerPrivateKey = file_get_contents('./tests/keys/private.key');
+        $issuerTokenEncoded = $issuerTokenDecoded->encode($issuerPrivateKey);
+        $issuerTokenString = $issuerTokenEncoded->__toString();
+        
+        // Attacker part
+        $capturedPublicKey = file_get_contents('./tests/keys/public.pub');
+        $attackerTokenEncoded = new TokenEncoded($issuerTokenString);
+        $attackerTokenDecoded = $attackerTokenEncoded->decode();
+        $header = $attackerTokenDecoded->getHeader();
+        $header['alg'] = JWT::ALGORITHM_HS256;
+        $attackerTokenDecoded->setHeader($header);
+        $craftedTokenEncoded = $attackerTokenDecoded->encode($capturedPublicKey);
+        $craftedTokenString = $craftedTokenEncoded->__toString();
+        
+        // Verifier part
+        $verifierPublicKey = file_get_contents('./tests/keys/public.pub');
+        $verifierTokenEncoded = new TokenEncoded($craftedTokenString);
+        
+        $exception = false;
+        try {
+            $verifierTokenEncoded->validate($verifierPublicKey, JWT::ALGORITHM_RS256);
+        } catch (IntegrityViolationException $ex) {
+            $exception = true;
+        }
+        
+        $this->assertTrue($exception);
+    }
+    
     public function test_building_encoded_token_with_null()
     {
         $this->expectException(EmptyTokenException::class);
@@ -125,7 +190,20 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
+
+    public function test_encoding_with_algorithm_force()
+    {
+        $privateKey = file_get_contents('./tests/keys/private.key');
         
+        $tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_HS256], []);
+        $tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
+        $tokenString = $tokenEncoded->__toString();
+        
+        $tokenEncoded = new TokenEncoded($tokenString);
+        $header = $tokenEncoded->decode()->getHeader();
+        $this->assertEquals(JWT::ALGORITHM_RS256, $header['alg']);
+    }
+    
     public function test_encoding_with_incorrect_key_format_for_given_algorithm()
     {
         $this->expectException(SigningFailedException::class);
@@ -430,7 +508,7 @@ class TokenEncodedTest extends TokenBaseTest
             $tokenDecoded = new TokenDecoded([], ['exp' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
-            $tokenEncoded->validate($key, 101);
+            $tokenEncoded->validate($key, null, 101);
         } catch (Exception $e) {
             $exception = true;
         }
@@ -449,7 +527,7 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['exp' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
 
-        $tokenEncoded->validate($key, 100);
+        $tokenEncoded->validate($key, null, 100);
     }
     
     public function test_validation_with_not_before_date_valid()
@@ -498,7 +576,7 @@ class TokenEncodedTest extends TokenBaseTest
             $tokenDecoded = new TokenDecoded([], ['nbf' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key);
 
-            $tokenEncoded->validate($key, 100);
+            $tokenEncoded->validate($key, null, 100);
         } catch (Exception $e) {
             $exception = true;
         }
@@ -519,7 +597,7 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['nbf' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key);
 
-        $tokenEncoded->validate($key, 99);
+        $tokenEncoded->validate($key, null, 99);
     }
     
 }
