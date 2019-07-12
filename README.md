@@ -61,7 +61,7 @@ $tokenString = 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1c2VyMTIzIiwic2Vzc2lvbiI6ImNoNzJn
 try {
 $tokenEncoded = new TokenEncoded($tokenString);
 } catch (UnsecureTokenException $e) {
-    // Unsecured token
+    // Unsecure token
 }
 ```
 
@@ -76,7 +76,7 @@ $tokenString = sprintf('%s.%s.%s', $header, $payload, $signature);
 try {
     $tokenEncoded = $tokenEncoded($tokenString);
 } catch (UnsecureTokenException $e) {
-    // Unsecured token
+    // Unsecure token
 }
 ```
 
@@ -87,7 +87,7 @@ $tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
 try {
     $tokenEncoded = $tokenDecoded->encode($key);
 } catch (UnsecureTokenException $e) {
-    // Unsecured token
+    // Unsecure token
 }
 ```
 
