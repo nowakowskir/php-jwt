@@ -80,7 +80,7 @@ try {
 }
 ```
 
-Algorithm defined in token's header may be tampered on the way witch in some circumstances may allow an attacker to successfuly validate a tampered token!
+Algorithm defined in token's header may be tampered on the way which in some circumstances may allow an attacker to successfuly validate a tampered token!
 
 ## Generate strong private key
 
@@ -205,9 +205,18 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS512);
 
 Please note that there is no need to provide algorithm when validating token as algorithm is already contained in token's header, although for security reasons it's highly recommended to do so!
 
+Less secure solution but with more flexibility:
+
 ```
 $tokenEncoded = new TokenEncoded($tokenString);
 $tokenEncoded->validate($key);
+```
+
+More secure solution but with less flexibility:
+
+```
+$tokenEncoded = new TokenEncoded($tokenString);
+$tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
 ```
 
 ### Using private/public key pair to sign and validate token
