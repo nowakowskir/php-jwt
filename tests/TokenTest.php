@@ -734,7 +734,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if validation fails for token with unsupported algorithms.
+     * Checks if validation fails for token with unsupported algorithm.
      * 
      * This should result with UnsupportedAlgorithmException.
      */
