@@ -80,7 +80,7 @@ try {
 }
 ```
 
-Algorithm defined in token's header may be tampered on the way witch in some circumstances may allow an attacker to successfuly validate a tampered token!
+Algorithm defined in token's header may be tampered on the way which in some circumstances may allow an attacker to successfuly validate a tampered token!
 
 ## Generate strong private key
 
