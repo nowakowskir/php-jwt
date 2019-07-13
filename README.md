@@ -1,4 +1,4 @@
-# Signed JSON Web Tokens (JWT) implementation for PHP 7
+# JSON Web Tokens (JWT) implementation for PHP 7
 
 ## JWT
 
