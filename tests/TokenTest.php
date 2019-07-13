@@ -19,9 +19,24 @@ use Nowakowskir\JWT\Exceptions\TokenInactiveException;
 use Nowakowskir\JWT\Exceptions\SigningFailedException;
 use Nowakowskir\JWT\Tests\TokenBaseTest;
 
+/**
+ * This class contains set of JWT tests.
+ *
+ * @author   Radosław Nowakowski <nowakowski.r@gmail.com>
+ * @license  http://opensource.org/licenses/BSD-3-Clause 3-clause BSD
+ * @link     https://github.com/nowakowskir/php-jwt
+ */
 class TokenEncodedTest extends TokenBaseTest
 {
-    public function test_hacking_possible_with_no_algorithm_forcing()
+    /**
+     * Checks if tampering token and successful validation is possible when knowing public key and algorithm is not forced during validation.
+     * 
+     * If token is encoded using RSA algorithm and public key is known to an attacker
+     * and validation doesn't enforce specific algorithm to be used
+     * it is possible to tamper a token switching its algorithm to HMAC, signing it with public key
+     * so the token will be also validated using public key, thus will be successfully validated.
+     */
+    public function test_bypassing_possible_with_no_algorithm_forcing() : void
     {
         // Issuer part
         $issuerTokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], []);
@@ -53,7 +68,12 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertFalse($exception);
     }
     
-    public function test_hacking_not_possible_with_algorithm_forcing()
+    /**
+     * Checks if tampering token and successful validation is not possible when algorithm is forced during validation.
+     * 
+     * This should result in unsuccessful validation as opposite to test_bypassing_possible_with_no_algorithm_forcing test.
+     */
+    public function test_bypassing_not_possible_with_algorithm_forcing() : void
     {
         // Issuer part
         $issuerTokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], []);
@@ -85,25 +105,45 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertTrue($exception);
     }
     
-    public function test_building_encoded_token_with_null()
+    /**
+     * Checks if it's not possible to create encoded token with null value.
+     * 
+     * This should result with EmptyTokenException.
+     */
+    public function test_building_encoded_token_with_null() : void
     {
         $this->expectException(EmptyTokenException::class);
         $tokenEncoded = new TokenEncoded(null);
     }
-
-    public function test_building_encoded_token_with_empty_string()
+    
+    /**
+     * Checks if it's not possible to create encoded token with empty string value.
+     * 
+     * This should result with EmptyTokenException.
+     */
+    public function test_building_encoded_token_with_empty_string() : void
     {
         $this->expectException(EmptyTokenException::class);
         $tokenEncoded = new TokenEncoded('');
     }
-    
-    public function test_building_encoded_token_with_invalid_structure()
+        
+    /**
+     * Checks if it's not possible to create encoded token with string of invalid structure.
+     * 
+     * This should result with InvalidStructureException.
+     */
+    public function test_building_encoded_token_with_invalid_structure() : void
     {
         $this->expectException(InvalidStructureException::class);
         $tokenEncoded = new TokenEncoded('aaa.bbb.ccc');
     }
-
-    public function test_building_encoded_token_with_none_algorithm()
+        
+    /**
+     * Checks if it's not possible to create encoded token which has none algorithm defined in its header.
+     * 
+     * This should result with UnsecureTokenException.
+     */
+    public function test_building_encoded_token_with_none_algorithm() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
         $payload = Base64Url::encode(json_encode([]));
@@ -115,8 +155,13 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(UnsecureTokenException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
-    
-    public function test_building_encoded_token_with_missing_algorithm()
+            
+    /**
+     * Checks if it's not possible to create encoded token which has no algorithm defined in its header.
+     * 
+     * This should result with UndefinedAlgorithmException.
+     */
+    public function test_building_encoded_token_with_missing_algorithm() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT']));
         $payload = Base64Url::encode(json_encode([]));
@@ -127,8 +172,13 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(UndefinedAlgorithmException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
-
-    public function test_building_encoded_token_with_empty_signature()
+        
+    /**
+     * Checks if it's not possible to create encoded token which has empty signature.
+     * 
+     * This should result with UnsecureTokenException.
+     */
+    public function test_building_encoded_token_with_empty_signature() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = Base64Url::encode(json_encode([]));
@@ -139,8 +189,13 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(UnsecureTokenException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
-        
-    public function test_building_encoded_token_with_unsupported_token_type()
+            
+    /**
+     * Checks if it's not possible to create encoded token which has no JWT typ defined in its header.
+     * 
+     * This should result with UnsupportedTokenTypeException.
+     */    
+    public function test_building_encoded_token_with_unsupported_token_type() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'XYZ']));
         $payload = Base64Url::encode(json_encode([]));
@@ -151,8 +206,15 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(UnsupportedTokenTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
-    
-    public function test_building_encoded_token_with_invalid_exp_claim_type()
+            
+    /**
+     * Checks if it's not possible to create encoded token with invalid exp value.
+     * 
+     * exp must be integer number and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */   
+    public function test_building_encoded_token_with_invalid_exp_claim_type() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = Base64Url::encode(json_encode(['exp' => 'string']));
@@ -164,8 +226,15 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
-        
-    public function test_building_encoded_token_with_invalid_nbf_claim_type()
+            
+    /**
+     * Checks if it's not possible to create encoded token with invalid nbf value.
+     * 
+     * nbf must be integer number and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */           
+    public function test_building_encoded_token_with_invalid_nbf_claim_type() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = Base64Url::encode(json_encode(['nbf' => 'string']));
@@ -178,7 +247,14 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded = new TokenEncoded($token);
     }
             
-    public function test_building_encoded_token_with_invalid_iat_claim_type()
+    /**
+     * Checks if it's not possible to create encoded token with invalid iat value.
+     * 
+     * iat must be integer number and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */                
+    public function test_building_encoded_token_with_invalid_iat_claim_type() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
         $payload = Base64Url::encode(json_encode(['iat' => 'string']));
@@ -190,8 +266,91 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         $tokenEncoded = new TokenEncoded($token);
     }
+    
+    /**
+     * Checks if it's not possible to create encoded token with invalid iss value.
+     * 
+     * iss must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */                
+    public function test_building_encoded_token_with_invalid_iss_claim_type() : void
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['iss' => 1]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+    }
+    
+    /**
+     * Checks if it's not possible to create encoded token with invalid aud value.
+     * 
+     * aud must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */                
+    public function test_building_encoded_token_with_invalid_aud_claim_type() : void
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['aud' => 1]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+    }
+    
+    /**
+     * Checks if it's not possible to create encoded token with invalid jti value.
+     * 
+     * jti must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */                
+    public function test_building_encoded_token_with_invalid_jti_claim_type() : void
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['jti' => 1]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+    }
 
-    public function test_encoding_with_algorithm_force()
+    /**
+     * Checks if it's not possible to create encoded token with invalid sub value.
+     * 
+     * sub must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */                
+    public function test_building_encoded_token_with_invalid_sub_claim_type() : void
+    {
+        $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
+        $payload = Base64Url::encode(json_encode(['sub' => 1]));
+        $signature = Base64Url::encode('signature');
+        
+        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
+        $key = ']V@IaC1%fU,DrVI';
+        
+        $this->expectException(InvalidClaimTypeException::class);
+        $tokenEncoded = new TokenEncoded($token);
+    }
+    
+    /**
+     * Checks if algorithm passed to encoding method takes priority over algorithm defined in token's header.
+     */
+    public function test_encoding_with_algorithm_force() : void
     {
         $privateKey = file_get_contents('./tests/keys/private.key');
         
@@ -203,8 +362,13 @@ class TokenEncodedTest extends TokenBaseTest
         $header = $tokenEncoded->decode()->getHeader();
         $this->assertEquals(JWT::ALGORITHM_RS256, $header['alg']);
     }
-    
-    public function test_encoding_with_incorrect_key_format_for_given_algorithm()
+
+    /**
+     * Checks if it's not possible to encode decoded token when provided key doesn't comply with standards of selected algorithm.
+     * 
+     * This should result with SigningFailedException.
+     */   
+    public function test_encoding_with_incorrect_key_format_for_given_algorithm() : void
     {
         $this->expectException(SigningFailedException::class);
         
@@ -215,8 +379,13 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS256], []);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-
-    public function test_encoding_with_none_algorithm()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with no algorithm defined in its header.
+     * 
+     * This should result with UnsecureTokenException.
+     */
+    public function test_encoding_with_none_algorithm() : void
     {
         $this->expectException(UnsecureTokenException::class);
         
@@ -226,7 +395,12 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded = $tokenDecoded->encode($key);        
     }
         
-    public function test_encoding_with_unsupported_algorithm()
+    /**
+     * Checks if it's not possible to encode decoded token with unsupported algorithm defined in its header.
+     * 
+     * This should result with UnsupportedAlgorithmException.
+     */
+    public function test_encoding_with_unsupported_algorithm() : void
     {
         $this->expectException(UnsupportedAlgorithmException::class);
         
@@ -235,8 +409,15 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded(['alg' => 'XYZ'], []);
         $tokenEncoded = $tokenDecoded->encode($key);       
     }
-    
-    public function test_encoding_with_wrong_exp_claim_type()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with invalid exp value.
+
+     * exp must be integer and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */
+    public function test_encoding_with_wrong_exp_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -246,7 +427,14 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded = $tokenDecoded->encode($key);
     }
         
-    public function test_encoding_with_wrong_nbf_claim_type()
+    /**
+     * Checks if it's not possible to encode decoded token with invalid nbf value.
+     * 
+     * nbf must be integer and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */        
+    public function test_encoding_with_wrong_nbf_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -255,8 +443,15 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['nbf' => 'string']);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-            
-    public function test_encoding_with_wrong_iat_claim_type()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with invalid iat value.
+     * 
+     * iat must be integer and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */          
+    public function test_encoding_with_wrong_iat_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -265,8 +460,15 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['iat' => 'string']);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-
-    public function test_encoding_with_wrong_iss_claim_type()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with invalid iss value.
+     * 
+     * iss must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */
+    public function test_encoding_with_wrong_iss_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -275,8 +477,15 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['iss' => 1]);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-
-    public function test_encoding_with_wrong_sub_claim_type()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with invalid sub value.
+     * 
+     * sub must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */
+    public function test_encoding_with_wrong_sub_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -285,8 +494,15 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['sub' => 1]);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-
-    public function test_encoding_with_wrong_aud_claim_type()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with invalid aud value.
+     * 
+     * aud must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */
+    public function test_encoding_with_wrong_aud_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -295,8 +511,15 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['aud' => 1]);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-
-    public function test_encoding_with_wrong_jti_claim_type()
+        
+    /**
+     * Checks if it's not possible to encode decoded token with invalid jti value.
+     * 
+     * jti must be string and other values should not be accepted.
+     * 
+     * This should result with InvalidClaimTypeException.
+     */
+    public function test_encoding_with_wrong_jti_claim_type() : void
     {
         $this->expectException(InvalidClaimTypeException::class);
         
@@ -305,8 +528,11 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenDecoded = new TokenDecoded([], ['jti' => 1]);
         $tokenEncoded = $tokenDecoded->encode($key);
     }
-    
-    public function test_encoding_decoding_with_indirect_header()
+        
+    /**
+     * Checks if it's possible to encode decoded token when header was set through setter method instead of constructor.
+     */
+    public function test_encoding_decoding_with_indirect_header() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -320,8 +546,11 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertTrue(array_key_exists('xyz', $header));
         $this->assertEquals($timestamp, $header['xyz']);
     }
-    
-    public function test_encoding_decoding_with_indirect_payload()
+        
+    /**
+     * Checks if it's possible to encode decoded token when payload was set through setter method instead of constructor.
+     */    
+    public function test_encoding_decoding_with_indirect_payload() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -333,8 +562,14 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertTrue(array_key_exists('success', $payload));
         $this->assertEquals(1, $payload['success']);
     }    
-    
-    public function test_encoding_decoding_with_auto_appending_header_alg() {
+            
+    /**
+     * Checks if it's possible to encode decoded token when alg was not defined in token's header.
+     * 
+     * Default algorithm should be set automatically.
+     */    
+    public function test_encoding_decoding_with_auto_appending_header_alg() : void
+    {
         $key = ']V@IaC1%fU,DrVI';
         
         $tokenDecoded = new TokenDecoded([], []);
@@ -344,8 +579,14 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertTrue(array_key_exists('alg', $header));
         $this->assertEquals(JWT::DEFAULT_ALGORITHM, $header['alg']); 
     }
-    
-    public function test_encoding_decoding_with_retaining_custom_header_alg() {
+            
+    /**
+     * Checks if algorithm defined in token's header won't be overridden by default algorithm.
+     * 
+     * Initial algorithm defined in token's header should be retained.
+     */      
+    public function test_encoding_decoding_with_retaining_custom_header_alg() : void
+    {
         $key = ']V@IaC1%fU,DrVI';
         
         foreach (JWT::ALGORITHMS as $key => $values) {
@@ -363,8 +604,14 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertTrue(array_key_exists('alg', $header));
         $this->assertEquals($algorithm, $header['alg']); 
     }
-    
-    public function test_encoding_decoding_with_auto_appending_header_typ() {
+            
+    /**
+     * Checks if it's possible to encode decoded token when typ was not defined in token's header.
+     * 
+     * Default JWT typ should be set automatically.
+     */      
+    public function test_encoding_decoding_with_auto_appending_header_typ() : void
+    {
         $key = ']V@IaC1%fU,DrVI';
         
         $tokenDecoded = new TokenDecoded([], []);
@@ -375,7 +622,10 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertEquals('JWT', $header['typ']); 
     }
     
-    public function test_decoding_payload()
+    /**
+     * Checks basic decoding payload functionality.
+     */
+    public function test_decoding_payload() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -387,68 +637,108 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertEquals(1, $payload['success']);
     }
     
-    public function test_validation_integrity_hs256()
+    /**
+     * Checks successful encoding, decoding and validating flow for HS256.
+     */
+    public function test_validation_integrity_hs256() : void
     {
         $this->token_integrity(JWT::ALGORITHM_HS256, ']V@IaC1%fU,DrVI');
     }
     
-    public function test_validation_integrity_violation_hs256()
+    /**
+     * Checks unsuccessful encoding, decoding and validating flow for HS256.
+     */
+    public function test_validation_integrity_violation_hs256() : void
     {
         $this->token_integrity_violation(JWT::ALGORITHM_HS256, ']V@IaC1%fU,DrVI', 'ErC0gfQ0qlkf6WQ');
     }
-            
-    public function test_validation_integrity_hs384()
+    
+    /**
+     * Checks successful encoding, decoding and validating flow for HS384.
+     */       
+    public function test_validation_integrity_hs384() : void
     {
         $this->token_integrity(JWT::ALGORITHM_HS384, ']V@IaC1%fU,DrVI');
     }
     
-    public function test_validation_integrity_violation_hs384()
+    /**
+     * Checks unsuccessful encoding, decoding and validating flow for HS384.
+     */
+    public function test_validation_integrity_violation_hs384() : void
     {
         $this->token_integrity_violation(JWT::ALGORITHM_HS384, ']V@IaC1%fU,DrVI', 'ErC0gfQ0qlkf6WQ');
     }          
     
-    public function test_validation_integrity_hs512()
+    /**
+     * Checks successful encoding, decoding and validating flow for HS512.
+     */ 
+    public function test_validation_integrity_hs512() : void
     {
         $this->token_integrity(JWT::ALGORITHM_HS512, ']V@IaC1%fU,DrVI');
     }
     
-    public function test_validation_integrity_violation_hs512()
+    /**
+     * Checks unsuccessful encoding, decoding and validating flow for HS512.
+     */
+    public function test_validation_integrity_violation_hs512() : void
     {
         $this->token_integrity_violation(JWT::ALGORITHM_HS512, ']V@IaC1%fU,DrVI', 'ErC0gfQ0qlkf6WQ');
     }
-
-    public function test_validation_integrity_rs256()
+    
+    /**
+     * Checks successful encoding, decoding and validating flow for RS256.
+     */ 
+    public function test_validation_integrity_rs256() : void
     {
         $this->token_integrity(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
     }
     
-    public function test_validation_integrity_violation_rs256()
+    /**
+     * Checks unsuccessful encoding, decoding and validating flow for RS256.
+     */
+    public function test_validation_integrity_violation_rs256() : void
     {
         $this->token_integrity_violation(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
     }
     
-    public function test_validation_integrity_rs384()
+    /**
+     * Checks successful encoding, decoding and validating flow for RS384.
+     */ 
+    public function test_validation_integrity_rs384() : void
     {
         $this->token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
     }
     
-    public function test_validation_integrity_violation_rs384()
+    /**
+     * Checks unsuccessful encoding, decoding and validating flow for RS384.
+     */
+    public function test_validation_integrity_violation_rs384() : void
     {
         $this->token_integrity_violation(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
     }
-        
-    public function test_validation_integrity_rs512()
+    
+    /**
+     * Checks successful encoding, decoding and validating flow for RS512.
+     */   
+    public function test_validation_integrity_rs512() : void
     {
         $this->token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
     }
     
-    public function test_validation_integrity_violation_rs512()
+    /**
+     * Checks unsuccessful encoding, decoding and validating flow for RS512.
+     */
+    public function test_validation_integrity_violation_rs512() : void
     {
         $this->token_integrity_violation(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
     }
 
-
-    public function test_validating_with_unsupported_algorithm()
+    /**
+     * Checks if validation fails for token with unsupported algorithms.
+     * 
+     * This should result with UnsupportedAlgorithmException.
+     */
+    public function test_validating_with_unsupported_algorithm() : void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'XYZ']));
         $payload = Base64Url::encode(json_encode([]));
@@ -462,7 +752,10 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded->validate($key);
     }
 
-    public function test_validation_expiration_date_valid()
+    /**
+     * Checks if validation succeeds for token with valid exp.
+     */
+    public function test_validation_expiration_date_valid() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -482,7 +775,12 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertFalse($exception);
     }
     
-    public function test_validation_with_expiration_date_invalid()
+    /**
+     * Checks if validation fails for token with invalid exp.
+     * 
+     * This should result with TokenExpiredException.
+     */
+    public function test_validation_with_expiration_date_invalid() : void
     {
         $this->expectException(TokenExpiredException::class);
         
@@ -496,7 +794,10 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded->validate($key);
     }
 
-    public function test_validation_with_expiration_date_invalid_leeway_valid()
+    /**
+     * Checks if validation succeeds for token with valid exp.
+     */
+    public function test_validation_with_expiration_date_invalid_leeway_valid() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -515,8 +816,13 @@ class TokenEncodedTest extends TokenBaseTest
         
         $this->assertFalse($exception);
     }
-    
-    public function test_validation_with_expiration_date_invalid_leeway_invalid()
+        
+    /**
+     * Checks if validation fails for token with invalid exp and not compensated by leeway.
+     * 
+     * This should result with TokenExpiredException.
+     */
+    public function test_validation_with_expiration_date_invalid_leeway_invalid() : void
     {
         $this->expectException(TokenExpiredException::class);
         
@@ -530,7 +836,10 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded->validate($key, null, 100);
     }
     
-    public function test_validation_with_not_before_date_valid()
+    /**
+     * Checks if validation succeeds for token with valid nbf.
+     */
+    public function test_validation_with_not_before_date_valid() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -549,8 +858,13 @@ class TokenEncodedTest extends TokenBaseTest
         
         $this->assertFalse($exception);
     }
-
-    public function test_validation_with_not_before_date_invalid()
+    
+    /**
+     * Checks if validation fails for token with invalid nbf.
+     * 
+     * This should result with TokenInactiveException.
+     */
+    public function test_validation_with_not_before_date_invalid() : void
     {
         $this->expectException(TokenInactiveException::class);
         
@@ -564,7 +878,10 @@ class TokenEncodedTest extends TokenBaseTest
         $tokenEncoded->validate($key);
     }
 
-    public function test_validation_with_not_before_date_invalid_leeway_valid()
+    /**
+     * Checks if validation succeeds for token with invalid nbf but compensated by leeway.
+     */
+    public function test_validation_with_not_before_date_invalid_leeway_valid() : void
     {
         $key = ']V@IaC1%fU,DrVI';
         
@@ -584,7 +901,12 @@ class TokenEncodedTest extends TokenBaseTest
         $this->assertFalse($exception);
     }
     
-    public function test_validation_with_not_before_date_invalid_leeway_invalid()
+    /**
+     * Checks if validation fails for token with invalid nbf and not compensated by leeway.
+     * 
+     * This should result with TokenInactiveException.
+     */
+    public function test_validation_with_not_before_date_invalid_leeway_invalid() : void
     {
         $this->expectException(TokenInactiveException::class);
         

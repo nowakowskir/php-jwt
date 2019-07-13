@@ -63,7 +63,7 @@ class JWT
      * 
      * @param TokenDecoded  $tokenDecoded   Decoded token
      * @param string        $key            Key used to sign the token
-     * @param string|null   $algorithm      Force algorithm even if token's header exists
+     * @param string|null   $algorithm      Force algorithm even if defined in token's header
      * 
      * @return TokenEncoded
      */

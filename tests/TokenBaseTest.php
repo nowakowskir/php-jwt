@@ -8,10 +8,17 @@ use Nowakowskir\JWT\Exceptions\IntegrityViolationException;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
 
+/**
+ * This class contains basic set of methods used for JWT tests.
+ *
+ * @author   Radosław Nowakowski <nowakowski.r@gmail.com>
+ * @license  http://opensource.org/licenses/BSD-3-Clause 3-clause BSD
+ * @link     https://github.com/nowakowskir/php-jwt
+ */
 class TokenBaseTest extends TestCase
 {
     
-    public function token_integrity($algorithm, $privateKey, $publicKey = null)
+    public function token_integrity($algorithm, $privateKey, $publicKey = null) : void
     {
         $tokenDecoded = new TokenDecoded(['alg' => $algorithm], ['success' => 1]);
         
@@ -31,7 +38,7 @@ class TokenBaseTest extends TestCase
         $this->assertFalse($exception);
     }
     
-    public function token_integrity_violation($algorithm, $privateKey, $publicKey = null)
+    public function token_integrity_violation($algorithm, $privateKey, $publicKey = null) : void
     {
         $this->expectException(IntegrityViolationException::class);
         $tokenDecoded = new TokenDecoded(['alg' => $algorithm], ['success' => 1]);
