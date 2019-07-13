@@ -92,7 +92,7 @@ Make sure your private key is secured and not accessible by any unauthorized ent
 
 ## Protect your public key
 
-Even if it's called public, try to share this key only when it's really necessary to do so. Also file permissions should be as minimum as required. Do not pass public key between request or expose it publicly.
+Even if it's called public, try to share this key only when it's really necessary to do so. Also file permissions should be as restrictive as possible. Do not pass public key between requests or expose it publicly.
 
 ## Use token's expiration date
 
