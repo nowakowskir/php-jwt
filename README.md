@@ -94,6 +94,10 @@ Make sure your private key is secured and not accessible by any unauthorized ent
 
 Even if it's called public, try to share this key only when it's really necessary to do so. Also file permissions should be as restrictive as possible. Do not pass public key between requests or expose it publicly.
 
+## Don't pass tokens in URL
+
+They will be stored in server logs.
+
 ## Use token's expiration date
 
 Whenever possible, use token's expiration date so it's valid as short as necessary.
