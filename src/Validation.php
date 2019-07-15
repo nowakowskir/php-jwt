@@ -160,5 +160,4 @@ class Validation
             throw new UnsupportedTokenTypeException('Unsupported token type');
         }
     }
-
 }

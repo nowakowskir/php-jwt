@@ -27,12 +27,13 @@ class JWT
     const ALGORITHM_RS256 = 'RS256';
     const ALGORITHM_RS384 = 'RS384';
     const ALGORITHM_RS512 = 'RS512';
-    
+
     /**
-     * Default algorithm key that will be used when encoding token in case no algorithm was provided in token's header nor as parameter to encode method.
+     * Default algorithm key that will be used when encoding token in case no algorithm was provided
+     * in token's header nor as parameter to encode method.
      */
     const DEFAULT_ALGORITHM = self::ALGORITHM_HS256;
-    
+
     /**
      * Mapping of available algorithm keys with their types and target algorithms.
      */
@@ -54,8 +55,10 @@ class JWT
      */
     public static function decode(TokenEncoded $tokenEncoded): TokenDecoded
     {
-        return new TokenDecoded(json_decode(Base64Url::decode($tokenEncoded->getHeader()), true),
-            json_decode(Base64Url::decode($tokenEncoded->getPayload()), true));
+        return new TokenDecoded(
+            json_decode(Base64Url::decode($tokenEncoded->getHeader()), true),
+            json_decode(Base64Url::decode($tokenEncoded->getPayload()), true)
+        );
     }
 
     /**
@@ -71,7 +74,11 @@ class JWT
     {
         $header = array_merge($tokenDecoded->getHeader(), [
             'typ' => array_key_exists('typ', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['typ'] : 'JWT',
-            'alg' => $algorithm ? $algorithm : (array_key_exists('alg', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['alg'] : self::DEFAULT_ALGORITHM),
+            'alg' => $algorithm ? $algorithm : (
+            array_key_exists('alg', $tokenDecoded->getHeader()) ?
+            $tokenDecoded->getHeader()['alg'] :
+            self::DEFAULT_ALGORITHM
+            ),
         ]);
 
         $elements = [];
@@ -84,7 +91,6 @@ class JWT
         return new TokenEncoded(implode('.', $elements));
     }
 
-    
     /**
      * Generates signature for given message.
      * 
@@ -115,17 +121,17 @@ class JWT
                 break;
             case 'openssl':
                 $signature = '';
-                
+
                 try {
                     $sign = openssl_sign($message, $signature, $key, $type);
                 } catch (Exception $e) {
                     throw new SigningFailedException(sprintf('Signing failed: %s', $e->getMessage()));
                 }
-                
-                if (! $sign) {
+
+                if (!$sign) {
                     throw new SigningFailedException('Signing failed');
                 }
-                
+
                 return $signature;
                 break;
             default:
@@ -182,16 +188,16 @@ class JWT
                 throw new UnsupportedAlgorithmException('Unsupported algorithm type');
                 break;
         }
-           
+
         if (array_key_exists('exp', $payload)) {
             Validation::checkExpirationDate($payload['exp'], $leeway);
         }
-        
+
         if (array_key_exists('nbf', $payload)) {
             Validation::checkNotBeforeDate($payload['nbf'], $leeway);
         }
     }
-    
+
     /**
      * Transforms algorithm key into array containing its type and target algorithm.
      * 
@@ -207,5 +213,4 @@ class JWT
 
         return self::ALGORITHMS[$algorithm];
     }
-
 }
