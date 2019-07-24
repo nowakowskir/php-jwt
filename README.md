@@ -111,7 +111,7 @@ Creating unsecured tokens is not possible due to security reasons. Using this li
 $tokenString = 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1c2VyMTIzIiwic2Vzc2lvbiI6ImNoNzJnc2IzMjAwMDB1ZG9jbDM2M2VvZnkiLCJuYW1lIjoiUHJldHR5IE5hbWUiLCJsYXN0cGFnZSI6Ii92aWV3cy9zZXR0aW5ncyJ9.'
 
 try {
-$tokenEncoded = new TokenEncoded($tokenString);
+    $tokenEncoded = new TokenEncoded($tokenString);
 } catch (UnsecureTokenException $e) {
     // Unsecure token
 }
