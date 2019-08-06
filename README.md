@@ -295,7 +295,7 @@ Let's imagine we have API that is used by our frontend application, so we have t
 
 You don't want to use cookies as your API is hosted on other domain and session is not shared across the servers. Passing user credentials in the API requests is also not a good idea. We need some other way of verification. Here JWT comes into play.
 
-Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authentication``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and was not tampered on the way.
+Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authorization``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and was not tampered on the way.
 
 Let's see how we can implement interaction between these two applications.
 
@@ -315,7 +315,7 @@ $tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
 $opts = [
     'http' => [
         'method' => 'GET',
-        'header' => 'Authentication: ' . $tokenEncoded->__toString() . "\r\n",
+        'header' => 'Authorization: ' . $tokenEncoded->__toString() . "\r\n",
     ]];
 
 $context = stream_context_create($opts);
@@ -328,12 +328,12 @@ echo $response;
 ### API
 
 ```
-if (! array_key_exists('HTTP_AUTHENTICATION', $_SERVER)) {
-    // Handle no authentication header received
+if (! array_key_exists('HTTP_AUTHORIZATION', $_SERVER)) {
+    // Handle no authorization header received
 }
 
 try {
-    $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHENTICATION']);
+    $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHORIZATION']);
 } catch (Exception $e) {
     // Handle token parsing exceptions
 }
