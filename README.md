@@ -33,7 +33,7 @@ When using this package, you will be mostly interested in two classes: ```TokenE
 
 ### TokenDecoded
 
-This class is representation of decoded token. It consist of header and payload.
+This class is representation of decoded token. It consists of header and payload.
 
 You can get decoded token from your encoded token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
 
