@@ -1,7 +1,0 @@
-<phpunit bootstrap="vendor/autoload.php">
-  <testsuites>
-    <testsuite name="money">
-      <file>tests/TokenTest.php</file>
-    </testsuite>
-  </testsuites>
-</phpunit>

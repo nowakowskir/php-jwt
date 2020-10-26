@@ -1,6 +1,6 @@
 {
     "name": "nowakowskir/php-jwt",
-    "description": "",
+    "description": "JSON Web Token implementation for PHP.",
     "homepage": "https://github.com/nowakowskir/php-jwt",
     "authors": [
         {

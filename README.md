@@ -23,207 +23,206 @@ Please check [BSD-3 Clause](http://opensource.org/licenses/BSD-3-Clause) terms b
 
 ## Installation
 
+You can add this package to your project by running composer command:
 ```
 composer require nowakowskir/php-jwt
 ```
 
+Make sure your vendor auto load file is loaded correctly and following classes are used.
+
+```
+use Nowakowskir\JWT\JWT;
+use Nowakowskir\JWT\TokenDecoded;
+use Nowakowskir\JWT\TokenEncoded;
+```
+
 ## Elements
 
-When using this package, you will be mostly interested in two classes: ```TokenEncoded``` and ```TokenDecoded```.
+When using this package, you will be mostly using two classes: ```TokenEncoded``` and ```TokenDecoded```.
+
+You can transform objects of those class like below:
+
+```
+TokenEncoded => TokenDecoded
+TokenDecoded => TokenEncoded
+```
+
 
 ### TokenDecoded
 
-This class is representation of decoded token. It consists of header and payload.
+This class is a representation of a decoded token. It consists of a header and payload. Both elements are arrays.
 
-You can get decoded token from your encoded token using ```$tokenEncoded->decode()```. In result, you will get new object of ```TokenDecoded``` class.
-
-> Please note that providing key is not required to decode token as its header and payload are public. Read more about this in *Security best practices section*!
-
+Token represented by an object of ```TokenDecoded``` class, lets you access and modify any of its parts.
 
 ### TokenEncoded
 
-This class is representation of encoded token. 
-
-If you want to create encoded token, you just need to prepare decoded version of token first and then use ```$tokenDecoded->encode($key)``` method. In result, you will get new object of ```TokenEncoded``` class.
-
-You may also want to create encoded token directly from a string, so you can use ```$tokenEncoded = new TokenEncoded($tokenString)```.
-
-You should use ```$tokenEncoded->decode()``` method together with ```$tokenEncoded->validate($key)```.
-
-In order to use the decoded payload make sure your token goes through validate process first. Otherwise, payload can not be treated as trusted!
-
-## Security best practices
-
-## Don't pass confidental data in token's payload
-
-Please note that providing key is not required to decode token as its header and payload are public. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was issued by trusted party. It does not protect your data passed in payload!
-
-## Don't trust your payload until you validate token
-
-The only way of ensuring the token is valid is to use ```validate()``` method on encoded token. Please keep in mind that ```decode()``` method decodes the token and gives you access to its payload without any validation.
-
-## Enforce algorithm when encoding and validating token
-
-Due to security reasons you should choose one algorithm whenever possible and stick to it in both issuer and verifier applications enforcing selected algorithm to be used when encoding and validating token.
-
-```
-$tokenDecoded = new TokenDecoded([], []);
-$tokenEndcoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
-```
-
-```
-$tokenEncoded = new TokenEncoded($tokenString);
-try {
-    $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
-} catch (IntegrityViolationException $e) {
-    // Token not trusted
-}
-```
-
-Algorithm defined in token's header may be tampered on the way which in some circumstances may allow an attacker to successfuly validate a tampered token!
-
-## Generate strong private key
-
-Follow the instructions below to generate strong private key.
-
-## Protect your private key
-
-Make sure your private key is secured and not accessible by any unauthorized entities. Special care should be taken to file permissions. In most cases you should set ```600``` permission on your private key file, which means it's accessible only by file's owner.
-
-## Protect your public key
-
-Even if it's called public, try to share this key only when it's really necessary to do so. Also file permissions should be as restrictive as possible. Do not pass public key between requests or expose it publicly.
-
-## Don't pass tokens in URL
-
-They will be stored in server logs.
-
-## Use token's expiration date
-
-Whenever possible, use token's expiration date so it's valid as short as necessary.
-
-## Unsecured tokens
-
-Creating unsecured tokens is not possible due to security reasons. Using this library you can not create a token with ```none``` algorithm or empty signature. Trying to create such token will throw ```UnsecureTokenException```.
-
-```
-// Token with missing signature
-$tokenString = 'eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1c2VyMTIzIiwic2Vzc2lvbiI6ImNoNzJnc2IzMjAwMDB1ZG9jbDM2M2VvZnkiLCJuYW1lIjoiUHJldHR5IE5hbWUiLCJsYXN0cGFnZSI6Ii92aWV3cy9zZXR0aW5ncyJ9.'
-
-try {
-    $tokenEncoded = new TokenEncoded($tokenString);
-} catch (UnsecureTokenException $e) {
-    // Unsecure token
-}
-```
-
-```
-// Crafted token with none algorithm
-$header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => 'none']));
-$payload = Base64Url::encode(json_encode([]));
-$signature = Base64Url::encode('signature');
-        
-$tokenString = sprintf('%s.%s.%s', $header, $payload, $signature);
-
-try {
-    $tokenEncoded = $tokenEncoded($tokenString);
-} catch (UnsecureTokenException $e) {
-    // Unsecure token
-}
-```
-
-```
-// Creating token with none algorithm
-$tokenDecoded = new TokenDecoded(['alg' => 'none'], []);
-
-try {
-    $tokenEncoded = $tokenDecoded->encode($key);
-} catch (UnsecureTokenException $e) {
-    // Unsecure token
-}
-```
-
-### Check for updates
-
-Regularly check for updates of this library. 
+This class is representation of an encoded token.
 
 ## Usage
 
-### Creating new token
+### Building the new JWT
+
+There are two arguments you can optionally pass to ```TokenDecode``` constructor. These are header and payload.
 
 ```
-$tokenDecoded = new TokenDecoded($header, $payload);
-$tokenEncoded = $tokenDecoded->encode($key);
+$tokenDecoded = new TokenDecoded(['iss' => 'Something'], ['key' => 'value']);
+$tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
 
-echo 'Your token is: ' . $tokenEncoded->__toString();
+echo 'Your token is: ' . $tokenEncoded->toString();
 ```
 
-### Validating existing token
+> Please check *Security best practices* section to understand why providing algorithm is mandatory when encoding a token!
+
+### Instantiating existing token
 
 ```
-$tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
-        
+$tokenEncoded = new TokenEncoded('Existing JSON Web Token');
+```
+
+### Getting token's header
+
+```
+$tokenEncoded = new TokenEncoded('Existing JSON Web Token');
+$header = $tokenEncoded->decode()->getHeader();
+```
+
+### Getting token's payload
+
+```
+$tokenEncoded = new TokenEncoded('Existing JSON Web Token');
+$payload = $tokenEncoded->decode()->getPayload();
+```
+
+> Please note that providing a key is not required to decode a token, as its header and payload are public. You should put special attention to not pass any confidential information within token's header and payload. JWT only allows you to verify, if the token containing given payload was issued by trusted party. It does not protect your data passed in a payload! Anybody can access your token's payload!
+
+### Validating token
+
+In order to use a decoded payload make sure your token goes through validate process first. Otherwise, payload can't be assumed as trusted!
+
+```
 try {
-    $tokenEncoded->validate($key);
-} catch (IntegrityViolationException $e) {
-    // Token is not trusted
-} catch(TokenExpiredException $e) {
-    // Token expired (exp date reached)
-} catch(TokenInactiveException $e) {
-    // Token is not yet active (nbf date not reached)
+    $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
 } catch(Exception $e) {
-    // Something else gone wrong
+    // Token validation failed.
 }
 ```
 
-### Getting payload of existing token
+> Please check *Security best practices* section to understand why providing algorithm is mandatory when validating a token!
+
+If you need more detailed information about why your validation process has failed, there are several exception classes you can catch:
+
+Exception Class | Description
+------------ | -------------
+Nowakowskir\JWT\Exceptions\IntegrityViolationException | Token is not trusted. Either invalid key was provided or token was tampered.
+Nowakowskir\JWT\Exceptions\AlgorithmMismatchException | If the algorithm you decided to use to validate the token is different from the algorithm specified in the token's header.
+Nowakowskir\JWT\Exceptions\TokenExpiredException | Token has expired (if ```exp``` was set by issuer).
+Nowakowskir\JWT\Exceptions\TokenInactiveException | Token is not yet active (if ```nbf``` was set by issuer).
+
+
+### Building the new JWT with expiration date (exp)
+
+If you want your token to expire at some date, you can use ```exp``` flag.
 
 ```
-$tokenEncoded = new TokenEncoded('eyJhbGciOiJI...2StJdy+4XC3kM=');
-
-var_dump($tokenEncoded->decode()->getPayload());
+$tokenDecoded = new TokenDecoded(null, ['exp' => time() + 1000]);
+$tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 ```
 
-> Please note that providing key is not required to decode token, as its header and payload are public. You should take care not to pass any confidental information within token's header and payload. JWT only allows you to verify, if the token containing given payload was
-issued by trusted party. It does not protect your data passed in payload!
+### Building the new JWT with not before date (nbf)
 
-### Creating new token with custom algorithm
-
-By default ```HS256``` algorithm is used to encode tokens. You can change algorithm by either by providing it under ```alg``` key in token's header or as a parameter to ```encode()``` method. Because it's possible to provide algorithm in two places, algorithm defined in ```encode()``` method takes priority if provided in both places.
+If you want your token to be not active until reach some date, you can use ```nbf``` flag.
 
 ```
-$tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_HS384], $payload);
-$tokenEncoded = $tokenDecoded->encode($key);
+$tokenDecoded = new TokenDecoded(null, ['nbf' => time() + 1000]);
+$tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
+```
+
+### Solving clock difference issue between servers (exp, nbf)
+
+Because clock may vary across the servers, you can use so called ``leeway`` to solve this issue. It's some kind of time margin which will be taken into account when validating token (exp, nbf).
+
+```
+$leeway = 500;
+$tokenEncoded = new TokenEncoded('Existing JSON Web Token');
+$tokenEncoded->validate($key, JWT::ALGORITHM_RS256, $leeway);
+```
+
+## Security best practices
+
+### Don't pass confidential data in token's payload
+
+Please note that providing a key is not required to decode a token, as its header and payload are public. You should put special attention to not pass any confidential information within token's header and payload. JWT only allows you to verify, if the token containing given payload was issued by trusted party. It does not protect your data passed in a payload! Anybody can access your token's payload!
+
+### Don't trust your payload until you validate a token
+
+The only way to ensure the token is valid is to use ```TokenEncoded::validate()``` method. Please keep in mind that ```TokenDecoded::decode()``` method decodes a token only. It gives you access to its payload without any validation!
+
+The reason of why it allows you to get token's payload without any validation is because:
+* it's a nature of JWT that token's payload is not encrypted and is not protected by keys, so you should not even have illusion it is protected,
+* you may need to use some parts of your token's payload before token validation.
+
+### Enforce algorithm when encoding and validating token
+
+As in some circumstances, algorithm defined in token's header may be modified by an attacker, it's highly recommended to not relay on the algorithm contained in token's header.
+
+Due to security reasons you should choose one algorithm whenever possible and stick to it in both issuer and verifier applications.
+
+To increase your tokens' security, this package requires algorithm to be provided when encoding and validating tokens.
+
+Below you can find correct way of encoding and decoding tokens:
+
+```
+// Issuer
+$tokenDecoded = new TokenDecoded();
+$tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
 ```
 
 ```
-$tokenDecoded = new TokenDecoded([], $payload);
-$tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS384);
-```
-
-```
-$tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_HS384], $payload);
-$tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS512);
-// HS512 algorithm will take priority
-```
-
-Please note that there is no need to provide algorithm when validating token as algorithm is already contained in token's header, although for security reasons it's highly recommended to do so!
-
-Less secure solution but with more flexibility:
-
-```
-$tokenEncoded = new TokenEncoded($tokenString);
-$tokenEncoded->validate($key);
-```
-
-More secure solution but with less flexibility:
-
-```
-$tokenEncoded = new TokenEncoded($tokenString);
+// Consumer
 $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
 ```
 
-### Using private/public key pair to sign and validate token
+As you can see, both use the same algorithm.
+
+This package throws ```Nowakowskir\JWT\Exceptions\AlgorithmMismatchException``` if the algorithm you decided to use to validate the token is different from the algorithm specified in the token's header.
+
+This protects your token against successful validation in case the token has been tampered.
+
+You may be tempted to do some workaround and use algorithm contained in token's header for validation purpose, although it's highly not recommended!
+
+```
+// Don't use algorithm defined in token's header like here!
+$header = $tokenEncoded->decode()->getHeader();
+$tokenEncoded->validate($publicKey, $header['alg']);
+```
+
+### Using insecure tokens
+
+Creating insecure tokens is not possible due to security reasons.
+
+This package does not let you create a token with ```none``` algorithm or empty signature.
+
+Trying to do so will result in ```Nowakowskir\JWT\Exceptions\InsecureTokenException``` exception.
+
+```
+try {
+    $tokenEncoded = new TokenEncoded('Existing JSON Web Token with none algorithm');
+} catch (InsecureTokenException $e) {
+    // Insecure token
+}
+```
+
+```
+try {
+    $tokenDecoded = new TokenDecoded();
+
+    $tokenDeoded->encode($privateKey, 'none');
+} catch (InsecureTokenException $e) {
+    // Insecure token
+}
+```
+
+### Generate strong private key
 
 First you need to generate private key.
 
@@ -238,123 +237,26 @@ Next, you need to generate public key based on private key.
 openssl rsa -in private.key -pubout -outform PEM -out public.pub
 ```
 
-Private key will be used to sign a token whereas public key will be used to verify a token.
+### Rotate your public/private key pair regularly
 
-```
-$tokenDecoded = new TokenDecoded();
-$privateKey = file_get_contents('./private.key');
-$tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
+To minimize the risk of gaining your public/private key by unauthorized entity, rotate it regularly.
 
-$tokenString = $tokenEncoded->__toString();
-```
+### Protect your private key
 
-```
-$publicKey = file_get_contents('./public.pub');
-$tokenEncoded = new TokenEncoded($tokenString);
+Make sure your private key is secured and not accessible by any unauthorized entities. Special care should be taken to file permissions. In most cases you should set ```600``` permissions on your private key file, which means it's accessible only by the file's owner.
 
-try {
-    $tokenEncoded->validate($key);
-} catch (IntegrityViolationException $e) {
-    // Token is not trusted
-}
-```
+### Protect your public key
 
-### Creating new token with expiration date (exp)
+Even if it's called public, try to share this key only when it's really required. Also, file permissions should be as restrictive as possible. Do not pass public key between requests or expose it to public audience.
 
-You may need to define expiration date for your token. To do so, you need to provide timestamp of expiration date into token's payload under ```exp``` key.
+### Don't pass tokens in URL
 
-```
-$tokenDecoded = new TokenDecoded([], ['exp' => time() + 1000]);
-$tokenEncoded = $tokenDecoded->encode($key);
-```
+They will be stored in server logs, browser history etc.
 
-### Creating new token with not before date (nbf)
+### Use token's expiration date
 
-You may need to define date before which your token should not be valid. To do so, you need to provide timestamp of not before date into token's payload under ```nbf``` key.
+Whenever possible, use token's expiration date, so the token is valid as short as necessary.
 
-```
-$tokenDecoded = new TokenDecoded([], ['nbf' => time() + 1000]);
-$tokenEncoded = $tokenDecoded->encode($key);
-```
+### Check for updates
 
-### Solving clock differences issue between servers (exp, nbf)
-
-Because clock may vary across the servers, you can use so called ```leeway``` to solve this issue. It's some kind of margin which will be taken into account when validating token (```exp```, ```nbf```).
-
-```
-$leeway = 500;
-$tokenEncoded = new TokenEncoded($tokenString);
-$tokenEncoded->validate($key, $leeway);
-```
-
-## Sample
-
-### Application
-
-Let's imagine we have API that is used by our frontend application, so we have two parties: API and frontend application.
-
-You don't want to use cookies as your API is hosted on other domain and session is not shared across the servers. Passing user credentials in the API requests is also not a good idea. We need some other way of verification. Here JWT comes into play.
-
-Your frontend application can generate JWT token containing some payload and sign it using some key. Token will be appended to the request's headers under ```Authorization``` key. Token's payload is public and can be easily read. It's not encrypted itself. All JWT does in this case is just signing the token with given key, assuring our API application that given payload has been signed by trusted party and was not tampered on the way.
-
-Let's see how we can implement interaction between these two applications.
-
-> Be aware that the following demonstrations are not meant to be used in production. These samples are for educational purposes only and thus remain simple.
-
-### Frontend
-
-```
-$payload = ['name' => 'john'];
-
-$tokenDecoded = new TokenDecoded([], $payload);
-
-$privateKey = file_get_contents('./private.key');
-
-$tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
-
-$opts = [
-    'http' => [
-        'method' => 'GET',
-        'header' => 'Authorization: ' . $tokenEncoded->__toString() . "\r\n",
-    ]];
-
-$context = stream_context_create($opts);
-
-$response = file_get_contents('http://localhost/api/welcome', false, $context);
-
-echo $response;
-```
-
-### API
-
-```
-if (! array_key_exists('HTTP_AUTHORIZATION', $_SERVER)) {
-    // Handle no authorization header received
-}
-
-try {
-    $tokenEncoded = new TokenEncoded($_SERVER['HTTP_AUTHORIZATION']);
-} catch (Exception $e) {
-    // Handle token parsing exceptions
-}
-
-$publicKey = file_get_contents('./public.pub');
-
-try {
-    $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
-} catch (IntegrityViolationException $e) {
-    // Handle token not trusted
-} catch (Exception $e) {
-    // Handle other validation exceptions
-}
-
-$tokenDecoded = $tokenEncoded->decode();
-
-$payload = $tokenDecoded->getPayload();
-
-header('Content-Type: application/json');
-
-echo json_encode([
-    'name' => $payload['name'] ?? 'unknown',
-]);
-```
+Regularly check for updates of this package.

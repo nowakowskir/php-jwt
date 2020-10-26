@@ -2,11 +2,12 @@
 
 namespace Nowakowskir\JWT\Tests;
 
-use \Exception;
-use PHPUnit\Framework\TestCase;
+use Exception;
 use Nowakowskir\JWT\Exceptions\IntegrityViolationException;
+use Nowakowskir\JWT\JWT;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This class contains basic set of methods used for JWT tests.
@@ -15,10 +16,10 @@ use Nowakowskir\JWT\TokenEncoded;
  * @license  http://opensource.org/licenses/BSD-3-Clause 3-clause BSD
  * @link     https://github.com/nowakowskir/php-jwt
  */
-class TokenBaseTest extends TestCase
+abstract class TokenBaseTest extends TestCase
 {
     
-    public function token_integrity($algorithm, $privateKey, $publicKey = null) : void
+    protected function check_token_integrity($algorithm, $privateKey, $publicKey = null) : void
     {
         $tokenDecoded = new TokenDecoded(['alg' => $algorithm], ['success' => 1]);
         
@@ -27,27 +28,27 @@ class TokenBaseTest extends TestCase
         $exception = false;
         
         try {
-            $token = $tokenDecoded->encode($privateKey)->__toString();
+            $token = $tokenDecoded->encode($privateKey, $algorithm)->toString();
         
             $tokenEncoded = new TokenEncoded($token);
-            $tokenEncoded->validate($publicKey);
+            $tokenEncoded->validate($publicKey, $algorithm);
         } catch (Exception $e) {
             $exception = true;
         }
         
         $this->assertFalse($exception);
     }
-    
-    public function token_integrity_violation($algorithm, $privateKey, $publicKey = null) : void
+
+    protected function check_token_integrity_violation($algorithm, $privateKey, $publicKey = null) : void
     {
         $this->expectException(IntegrityViolationException::class);
         $tokenDecoded = new TokenDecoded(['alg' => $algorithm], ['success' => 1]);
         
         $publicKey = $publicKey ?? $privateKey;
         
-        $token = $tokenDecoded->encode($privateKey)->__toString();
+        $token = $tokenDecoded->encode($privateKey, $algorithm)->toString();
         
         $tokenEncoded = new TokenEncoded($token);
-        $tokenEncoded->validate($publicKey);
+        $tokenEncoded->validate($publicKey, $algorithm);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Nowakowskir\JWT;
 
 /**
@@ -25,10 +26,10 @@ class TokenDecoded
      * @param array|null $header
      * @param array|null $payload
      */
-    public function __construct(?array $header = [], ?array $payload = [])
+    public function __construct(?array $header = null, ?array $payload = null)
     {
-        $this->payload = $payload;
-        $this->header = $header;
+        $this->payload = $payload ?? [];
+        $this->header = $header ?? [];
     }
 
     /**
@@ -45,6 +46,8 @@ class TokenDecoded
      * Sets array with token's payload.
      * 
      * @param array $payload
+     *
+     * @return void
      */
     public function setPayload(array $payload): void
     {
@@ -55,6 +58,8 @@ class TokenDecoded
      * Gets array with token's header.
      * 
      * @return array
+     *
+     * @return void
      */
     public function getHeader(): array
     {
@@ -65,6 +70,8 @@ class TokenDecoded
      * Sets array with token's header.
      * 
      * @param array $header
+     *
+     * @return void
      */
     public function setHeader(array $header): void
     {
@@ -74,12 +81,12 @@ class TokenDecoded
     /**
      * Performs auto encoding.
      * 
-     * @param string        $key        Key used to signing token.
-     * @param string|null   $algorithm  Optional algorithm to be used when algorithm is not yet defined in token's header.
+     * @param string        $key        Key used to sign the token.
+     * @param string        $algorithm  Algorithm to be used.
      * 
      * @return TokenEncoded
      */
-    public function encode(string $key, ?string $algorithm = null) : TokenEncoded
+    public function encode(string $key, string $algorithm): TokenEncoded
     {
         return JWT::encode($this, $key, $algorithm);
     }

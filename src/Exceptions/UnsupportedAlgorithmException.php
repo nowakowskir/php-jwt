@@ -2,7 +2,7 @@
 
 namespace Nowakowskir\JWT\Exceptions;
 
-use \Exception;
+use Exception;
 
 class UnsupportedAlgorithmException extends Exception
 {

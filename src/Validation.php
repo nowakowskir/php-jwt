@@ -1,15 +1,15 @@
 <?php
+
 namespace Nowakowskir\JWT;
 
-use \DateTime;
-use Nowakowskir\JWT\Base64Url;
-use Nowakowskir\JWT\Exceptions\UnsecureTokenException;
-use Nowakowskir\JWT\Exceptions\UnsupportedAlgorithmException;
+use DateTime;
+use Nowakowskir\JWT\Exceptions\InvalidClaimTypeException;
+use Nowakowskir\JWT\Exceptions\InvalidStructureException;
 use Nowakowskir\JWT\Exceptions\TokenExpiredException;
 use Nowakowskir\JWT\Exceptions\TokenInactiveException;
-use Nowakowskir\JWT\Exceptions\InvalidClaimTypeException;
 use Nowakowskir\JWT\Exceptions\UndefinedAlgorithmException;
-use Nowakowskir\JWT\Exceptions\InvalidStructureException;
+use Nowakowskir\JWT\Exceptions\InsecureTokenException;
+use Nowakowskir\JWT\Exceptions\UnsupportedAlgorithmException;
 use Nowakowskir\JWT\Exceptions\UnsupportedTokenTypeException;
 
 /**
@@ -95,13 +95,13 @@ class Validation
      * 
      * @param string $algorithm
      * 
-     * @throws UnsecureTokenException
+     * @throws InsecureTokenException
      * @throws UnsupportedAlgorithmException
      */
     public static function checkAlgorithmSupported(string $algorithm)
     {
         if (strtolower($algorithm) === 'none') {
-            throw new UnsecureTokenException('Unsecure token are not supported: none algorithm provided');
+            throw new InsecureTokenException('Unsecure token are not supported: none algorithm provided');
         }
         
         if (! array_key_exists($algorithm, JWT::ALGORITHMS)) {
@@ -113,12 +113,12 @@ class Validation
      * 
      * @param string $token
      * @return void
-     * @throws UnsecureTokenException
+     * @throws InsecureTokenException
      */
     public static function checkSignatureMissing(string $signature): void
     {
         if (strlen($signature) === 0) {
-            throw new UnsecureTokenException('Unsecure token are not supported: signature is missing');
+            throw new InsecureTokenException('Unsecure token are not supported: signature is missing');
         }    
     }
     

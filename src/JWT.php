@@ -1,11 +1,11 @@
 <?php
+
 namespace Nowakowskir\JWT;
 
-use \Exception;
-use Nowakowskir\JWT\Base64Url;
-use Nowakowskir\JWT\Validation;
-use Nowakowskir\JWT\Exceptions\SigningFailedException;
+use Exception;
+use Nowakowskir\JWT\Exceptions\AlgorithmMismatchException;
 use Nowakowskir\JWT\Exceptions\IntegrityViolationException;
+use Nowakowskir\JWT\Exceptions\SigningFailedException;
 use Nowakowskir\JWT\Exceptions\UnsupportedAlgorithmException;
 
 /**
@@ -27,12 +27,6 @@ class JWT
     const ALGORITHM_RS256 = 'RS256';
     const ALGORITHM_RS384 = 'RS384';
     const ALGORITHM_RS512 = 'RS512';
-
-    /**
-     * Default algorithm key that will be used when encoding token in case no algorithm was provided
-     * in token's header nor as parameter to encode method.
-     */
-    const DEFAULT_ALGORITHM = self::ALGORITHM_HS256;
 
     /**
      * Mapping of available algorithm keys with their types and target algorithms.
@@ -66,19 +60,21 @@ class JWT
      * 
      * @param TokenDecoded  $tokenDecoded   Decoded token
      * @param string        $key            Key used to sign the token
-     * @param string|null   $algorithm      Force algorithm even if defined in token's header
+     * @param string        $algorithm      Algorithm
      * 
      * @return TokenEncoded
      */
-    public static function encode(TokenDecoded $tokenDecoded, string $key, ?string $algorithm = null): TokenEncoded
+    public static function encode(TokenDecoded $tokenDecoded, string $key, string $algorithm): TokenEncoded
     {
+        $header = $tokenDecoded->getHeader();
+
+        if (array_key_exists('alg', $header) && $algorithm !== $header['alg']) {
+            throw new AlgorithmMismatchException('Algorithm provided in token\'s header doesn\'t match encoding algorithm.');
+        }
+
         $header = array_merge($tokenDecoded->getHeader(), [
             'typ' => array_key_exists('typ', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['typ'] : 'JWT',
-            'alg' => $algorithm ? $algorithm : (
-            array_key_exists('alg', $tokenDecoded->getHeader()) ?
-            $tokenDecoded->getHeader()['alg'] :
-            self::DEFAULT_ALGORITHM
-            ),
+            'alg' => $algorithm
         ]);
 
         $elements = [];
@@ -152,26 +148,25 @@ class JWT
      * - if token contains not before date (nbf) in its payload - current time against this date
      * - if token contains issued at date (iat) in its payload - current time against this date
      * 
-     * @param TokenEncoded  $tokenEncoded   Encoded token
-     * @param string        $key            Key used to signature verification
-     * @param string|null   $algorithm      Force algorithm to signature verification (recommended)
-     * @param int|null      $leeway         Some optional period to avoid clock synchronization issues
-     * @param array|null    $key            Claims to be excluded from validation
+     * @param TokenEncoded  $tokenEncoded       Encoded token
+     * @param string        $key                Key used to signature verification
+     * @param string        $algorithm          Force algorithm to signature verification (recommended)
+     * @param int|null      $leeway             Some optional period to avoid clock synchronization issues
+     * @param array|null    $claimsExclusions   Claims to be excluded from validation
      * 
-     * @return boolean
+     * @return bool
      * 
      * @throws IntegrityViolationException
      * @throws UnsupportedAlgorithmException
      */
-    public static function validate(TokenEncoded $tokenEncoded, string $key, ?string $algorithm, ?int $leeway = null, ?array $claimsExclusions = null): void
+    public static function validate(TokenEncoded $tokenEncoded, string $key, string $algorithm, ?int $leeway = null, ?array $claimsExclusions = null): bool
     {
         $tokenDecoded = self::decode($tokenEncoded);
 
         $signature = Base64Url::decode($tokenEncoded->getSignature());
-        $header = $tokenDecoded->getHeader();
         $payload = $tokenDecoded->getPayload();
 
-        list($function, $type) = self::getAlgorithmData($algorithm ?? $header['alg']);
+        list($function, $type) = self::getAlgorithmData($algorithm);
 
         switch ($function) {
             case 'hash_hmac':
@@ -196,6 +191,8 @@ class JWT
         if (array_key_exists('nbf', $payload)) {
             Validation::checkNotBeforeDate($payload['nbf'], $leeway);
         }
+
+        return true;
     }
 
     /**
@@ -204,8 +201,6 @@ class JWT
      * @param string    $algorithm     Algorithm key
      * 
      * @return array
-     * 
-     * @throws UnsupportedAlgorithmException
      */
     public static function getAlgorithmData(string $algorithm): array
     {

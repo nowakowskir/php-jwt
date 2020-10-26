@@ -1,10 +1,6 @@
 <?php
-namespace Nowakowskir\JWT;
 
-use Nowakowskir\JWT\Base64Url;
-use Nowakowskir\JWT\JWT;
-use Nowakowskir\JWT\Validation;
-use Nowakowskir\JWT\Exceptions\EmptyTokenException;
+namespace Nowakowskir\JWT;
 
 /**
  * This class is representation of encoded JSON Web Token (JWT).
@@ -40,12 +36,8 @@ class TokenEncoded
      * 
      * @throws EmptyTokenException
      */
-    public function __construct(?string $token = null)
+    public function __construct(string $token)
     {
-        if ($token === null || $token === '') {
-            throw new EmptyTokenException('Token not provided');
-        }
-
         Validation::checkTokenStructure($token);
         
         $elements = explode('.', $token);
@@ -117,7 +109,7 @@ class TokenEncoded
     /**
      * Performs auto decoding.
      * 
-     * @return \Nowakowskir\JWT\TokenDecoded
+     * @return TokenDecoded
      */
     public function decode(): TokenDecoded
     {
@@ -133,9 +125,9 @@ class TokenEncoded
      * 
      * @return bool
      */
-    public function validate(string $key, ?string $algorithm = null, ?int $leeway = null): void
+    public function validate(string $key, string $algorithm, ?int $leeway = null): bool
     {
-        JWT::validate($this, $key, $algorithm, $leeway);
+        return JWT::validate($this, $key, $algorithm, $leeway);
     }
 
     /**
@@ -143,7 +135,7 @@ class TokenEncoded
      * 
      * @return string
      */
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->token;
     }

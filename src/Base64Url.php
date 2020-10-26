@@ -1,8 +1,9 @@
 <?php
+
 namespace Nowakowskir\JWT;
 
 /**
- * Base64 url encode and decode implementation
+ * Base64 url encode and decode implementation.
  *
  * @author   Radosław Nowakowski <nowakowski.r@gmail.com>
  * @license  http://opensource.org/licenses/BSD-3-Clause 3-clause BSD
