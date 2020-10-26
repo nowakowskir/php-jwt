@@ -23,10 +23,10 @@ class TokenDecoded
     protected $payload;
 
     /**
-     * @param array|null $header
      * @param array|null $payload
+     * @param array|null $header
      */
-    public function __construct(?array $header = null, ?array $payload = null)
+    public function __construct(?array $payload = null, ?array $header = null)
     {
         $this->payload = $payload ?? [];
         $this->header = $header ?? [];

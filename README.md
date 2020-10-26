@@ -113,10 +113,10 @@ If you need more detailed information about why your validation process has fail
 
 Exception Class | Description
 ------------ | -------------
-Nowakowskir\JWT\Exceptions\IntegrityViolationException | Token is not trusted. Either invalid key was provided or token was tampered.
-Nowakowskir\JWT\Exceptions\AlgorithmMismatchException | If the algorithm you decided to use to validate the token is different from the algorithm specified in the token's header.
-Nowakowskir\JWT\Exceptions\TokenExpiredException | Token has expired (if ```exp``` was set by issuer).
-Nowakowskir\JWT\Exceptions\TokenInactiveException | Token is not yet active (if ```nbf``` was set by issuer).
+``Nowakowskir\JWT\Exceptions\IntegrityViolationException`` | Token is not trusted. Either invalid key was provided or token was tampered.
+``Nowakowskir\JWT\Exceptions\AlgorithmMismatchException`` | If the algorithm you decided to use to validate the token is different from the algorithm specified in the token's header.
+``Nowakowskir\JWT\Exceptions\TokenExpiredException`` | Token has expired (if ```exp``` was set by issuer).
+``Nowakowskir\JWT\Exceptions\TokenInactiveException`` | Token is not yet active (if ```nbf``` was set by issuer).
 
 
 ### Building the new JWT with expiration date (exp)
@@ -124,7 +124,7 @@ Nowakowskir\JWT\Exceptions\TokenInactiveException | Token is not yet active (if 
 If you want your token to expire at some date, you can use ```exp``` flag.
 
 ```
-$tokenDecoded = new TokenDecoded(null, ['exp' => time() + 1000]);
+$tokenDecoded = new TokenDecoded(['exp' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 ```
 
@@ -133,7 +133,7 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 If you want your token to be not active until reach some date, you can use ```nbf``` flag.
 
 ```
-$tokenDecoded = new TokenDecoded(null, ['nbf' => time() + 1000]);
+$tokenDecoded = new TokenDecoded(['nbf' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 ```
 

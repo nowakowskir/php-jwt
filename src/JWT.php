@@ -50,8 +50,8 @@ class JWT
     public static function decode(TokenEncoded $tokenEncoded): TokenDecoded
     {
         return new TokenDecoded(
-            json_decode(Base64Url::decode($tokenEncoded->getHeader()), true),
-            json_decode(Base64Url::decode($tokenEncoded->getPayload()), true)
+            json_decode(Base64Url::decode($tokenEncoded->getPayload()), true),
+            json_decode(Base64Url::decode($tokenEncoded->getHeader()), true)
         );
     }
 

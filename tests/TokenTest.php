@@ -29,7 +29,7 @@ class TokenEncodedTest extends TokenBaseTest
 {
     public function test_providing_different_algorithm_in_token_header_throws_an_exception()
     {
-        $tokenDecoded = new TokenDecoded(['alg' => JWT::ALGORITHM_RS512]);
+        $tokenDecoded = new TokenDecoded(null, ['alg' => JWT::ALGORITHM_RS512]);
 
         $key = file_get_contents('./tests/keys/private.key');
 
@@ -82,7 +82,7 @@ class TokenEncodedTest extends TokenBaseTest
         } catch (IntegrityViolationException $e) {
             $exception = true;
         }
-        
+
         $this->assertFalse($exception);
     }
     
@@ -411,7 +411,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['exp' => 'string']);
+        $tokenDecoded = new TokenDecoded(['exp' => 'string']);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -428,7 +428,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['nbf' => 'string']);
+        $tokenDecoded = new TokenDecoded(['nbf' => 'string']);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -445,7 +445,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['iat' => 'string']);
+        $tokenDecoded = new TokenDecoded(['iat' => 'string']);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -462,7 +462,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['iss' => 1]);
+        $tokenDecoded = new TokenDecoded(['iss' => 1]);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -479,7 +479,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['sub' => 1]);
+        $tokenDecoded = new TokenDecoded(['sub' => 1]);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -496,7 +496,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['aud' => 1]);
+        $tokenDecoded = new TokenDecoded(['aud' => 1]);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -513,7 +513,7 @@ class TokenEncodedTest extends TokenBaseTest
         
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['jti' => 1]);
+        $tokenDecoded = new TokenDecoded(['jti' => 1]);
         $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
     }
         
@@ -594,7 +594,7 @@ class TokenEncodedTest extends TokenBaseTest
     {
         $key = ']V@IaC1%fU,DrVI';
         
-        $tokenDecoded = new TokenDecoded(null, ['success' => 1]);
+        $tokenDecoded = new TokenDecoded(['success' => 1]);
         $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
         
         $payload = $tokenEncoded->decode()->getPayload();
@@ -729,7 +729,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
 
         try {
-            $tokenDecoded = new TokenDecoded(null, ['exp' => $timestamp]);
+            $tokenDecoded = new TokenDecoded(['exp' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
             $tokenEncoded->validate($key, JWT::ALGORITHM_HS256);
@@ -753,7 +753,7 @@ class TokenEncodedTest extends TokenBaseTest
 
         $timestamp = time() - 100;
 
-        $tokenDecoded = new TokenDecoded(null, ['exp' => $timestamp]);
+        $tokenDecoded = new TokenDecoded(['exp' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
         $tokenEncoded->validate($key, JWT::ALGORITHM_HS256);
@@ -771,7 +771,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
 
         try {
-            $tokenDecoded = new TokenDecoded(null, ['exp' => $timestamp]);
+            $tokenDecoded = new TokenDecoded(['exp' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
             $tokenEncoded->validate($key, JWT::ALGORITHM_HS256, 101);
@@ -795,7 +795,7 @@ class TokenEncodedTest extends TokenBaseTest
 
         $timestamp = time() - 100;
 
-        $tokenDecoded = new TokenDecoded(null, ['exp' => $timestamp]);
+        $tokenDecoded = new TokenDecoded(['exp' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
         $tokenEncoded->validate($key, JWT::ALGORITHM_HS256, 100);
@@ -813,7 +813,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
 
         try {
-            $tokenDecoded = new TokenDecoded(null, ['nbf' => $timestamp]);
+            $tokenDecoded = new TokenDecoded(['nbf' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
             $tokenEncoded->validate($key, JWT::ALGORITHM_HS256);
@@ -837,7 +837,7 @@ class TokenEncodedTest extends TokenBaseTest
 
         $timestamp = time() + 100;
 
-        $tokenDecoded = new TokenDecoded(null, ['nbf' => $timestamp]);
+        $tokenDecoded = new TokenDecoded(['nbf' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
         $tokenEncoded->validate($key, JWT::ALGORITHM_HS256);
@@ -855,7 +855,7 @@ class TokenEncodedTest extends TokenBaseTest
         $exception = false;
 
         try {
-            $tokenDecoded = new TokenDecoded(null, ['nbf' => $timestamp]);
+            $tokenDecoded = new TokenDecoded(['nbf' => $timestamp]);
             $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
             $tokenEncoded->validate($key, JWT::ALGORITHM_HS256, 100);
@@ -881,7 +881,7 @@ class TokenEncodedTest extends TokenBaseTest
 
         $exception = false;
 
-        $tokenDecoded = new TokenDecoded(null, ['nbf' => $timestamp]);
+        $tokenDecoded = new TokenDecoded(['nbf' => $timestamp]);
         $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
 
         $tokenEncoded->validate($key, JWT::ALGORITHM_HS256, 99);
