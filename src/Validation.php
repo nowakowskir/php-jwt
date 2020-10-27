@@ -49,7 +49,8 @@ class Validation
      */
     public static function checkNotBeforeDate(int $nbf, ?int $leeway = null): void
     {
-        $time = time() + ($leeway ? $leeway : 0);
+        $time = time() + ($leeway ?? 0);
+
         if ($time < $nbf) {
             throw new TokenInactiveException('Token is not valid before: ' . date(DateTime::ISO8601, $nbf));
         }

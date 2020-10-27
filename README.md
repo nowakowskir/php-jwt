@@ -93,7 +93,7 @@ $tokenEncoded = new TokenEncoded('Existing JSON Web Token');
 $payload = $tokenEncoded->decode()->getPayload();
 ```
 
-> Please note that providing a key is not required to decode a token, as its header and payload are public. You should put special attention to not pass any confidential information within the token's header and payload. JWT only allows you to verify if the token containing the given payload was issued by a trusted party. It does not protect your data passed in a payload! Anybody can access your token's payload!
+> Please note that providing a key is not required to decode a token, as its header and payload are public. You should put special attention to not pass any confidential information within the token's header and payload. JWT only allows you to verify if the token containing the given payload was issued by a trusted party. It does not protect your data passed in a payload! Be aware anybody can access your token's payload!
 
 ### Validating token
 
@@ -151,7 +151,7 @@ $tokenEncoded->validate($key, JWT::ALGORITHM_RS256, $leeway);
 
 ### Don't pass confidential data in token's payload
 
-Please note that providing a key is not required to decode a token, as its header and payload are public. You should put special attention to not pass any confidential information within the token's header and payload. JWT only allows you to verify if the token containing the given payload was issued by a trusted party. It does not protect your data passed in a payload! Anybody can access your token's payload!
+Please note that providing a key is not required to decode a token, as its header and payload are public. You should put special attention to not pass any confidential information within the token's header and payload. JWT only allows you to verify if the token containing the given payload was issued by a trusted party. It does not protect your data passed in a payload! Be aware anybody can access your token's payload!
 
 ### Don't trust your payload until you validate a token
 
@@ -207,7 +207,7 @@ Trying to do so will result in ```Nowakowskir\JWT\Exceptions\InsecureTokenExcept
 
 ```
 try {
-    $tokenEncoded = new TokenEncoded('Existing JSON Web Token with none algorithm');
+    $tokenEncoded = new TokenEncoded('Existing JSON Web Token with none algorithm or missing signature');
 } catch (InsecureTokenException $e) {
     // Insecure token
 }
@@ -222,6 +222,17 @@ try {
     // Insecure token
 }
 ```
+
+It's also not possible to parse token without an algorithm defined.
+
+```
+try {
+    $tokenEncoded = new TokenEncoded('Existing JSON Web Token without an algorithm');
+} catch (UndefinedAlgorithmException $e) {
+    // Algorithm not provided
+}
+```
+
 
 ### Generate a strong private key
 

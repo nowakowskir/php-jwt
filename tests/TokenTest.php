@@ -1,6 +1,6 @@
 <?php
 
-namespace Nowakowskir\JWT\Tests;
+namespace Tests;
 
 use Nowakowskir\JWT\Base64Url;
 use Nowakowskir\JWT\Exceptions\AlgorithmMismatchException;
@@ -45,12 +45,12 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if tampering a token and successful validation is possible
+     * Checks if tampering the token and successful validation is possible
      * with known public key and algorithm being not forced during validation.
-     * 
-     * If the token is encoded using RSA algorithm and attacker possess public key
-     * and a validation doesn't enforce specific algorithm to be used,
-     * it is possible to tamper the token by switching its algorithm to HMAC, signing it with public key
+     *
+     * If the token is encoded using the RSA algorithm and the attacker possess a public key
+     * and validation doesn't enforce a specific algorithm to be used,
+     * it is possible to tamper the token by switching its algorithm to HMAC, signing it with a public key
      * allowing the token to be successfully validated.
      */
     public function test_bypassing_would_be_possible_without_algorithm_forcing(): void
@@ -85,11 +85,11 @@ class TokenEncodedTest extends TokenBaseTest
 
         $this->assertFalse($exception);
     }
-    
+
     /**
      * Checks if tampering token and successful validation is not possible
-     * when algorithm is forced during validation.
-     * 
+     * when the algorithm is forced during validation.
+     *
      * This should result in unsuccessful validation as opposite to
      * test_bypassing_possible_with_no_algorithm_forcing test.
      */
@@ -126,7 +126,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if it's not possible to create an encoded token with string of invalid structure.
+     * Checks if it's not possible to create an encoded token with string with an invalid structure.
      * 
      * This should result with InvalidStructureException.
      */
@@ -169,10 +169,10 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(UndefinedAlgorithmException::class);
         new TokenEncoded($token);
     }
-        
+
     /**
-     * Checks if it's not possible to create an encoded token which has empty signature.
-     * 
+     * Checks if it's not possible to create an encoded token which has an empty signature.
+     *
      * This should result with InsecureTokenException.
      */
     public function test_building_encoded_token_with_empty_signature(): void
@@ -204,7 +204,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
             
     /**
-     * Checks if it's not possible to create an encoded token with invalid exp value.
+     * Checks if it's not possible to create an encoded token with an invalid exp value.
      * 
      * exp must be integer number and other values should not be accepted.
      * 
@@ -223,7 +223,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
             
     /**
-     * Checks if it's not possible to create an encoded token with invalid nbf value.
+     * Checks if it's not possible to create an encoded token with an invalid nbf value.
      * 
      * nbf must be integer number and other values should not be accepted.
      * 
@@ -240,14 +240,14 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         new TokenEncoded($token);
     }
-            
+
     /**
-     * Checks if it's not possible to create an encoded token with invalid iat value.
-     * 
+     * Checks if it's not possible to create an encoded token with an invalid iat value.
+     *
      * iat must be integer number and other values should not be accepted.
-     * 
+     *
      * This should result with InvalidClaimTypeException.
-     */                
+     */
     public function test_building_encoded_token_with_invalid_iat_claim_type(): void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
@@ -261,7 +261,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
     
     /**
-     * Checks if it's not possible to create an encoded token with invalid iss value.
+     * Checks if it's not possible to create an encoded token with an invalid iss value.
      * 
      * iss must be string and other values should not be accepted.
      * 
@@ -278,14 +278,14 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         new TokenEncoded($token);
     }
-    
+
     /**
-     * Checks if it's not possible to create an encoded token with invalid aud value.
-     * 
+     * Checks if it's not possible to create an encoded token with an invalid aud value.
+     *
      * aud must be string and other values should not be accepted.
-     * 
+     *
      * This should result with InvalidClaimTypeException.
-     */                
+     */
     public function test_building_encoded_token_with_invalid_aud_claim_type(): void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
@@ -297,14 +297,14 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         new TokenEncoded($token);
     }
-    
+
     /**
-     * Checks if it's not possible to create an encoded token with invalid jti value.
-     * 
+     * Checks if it's not possible to create an encoded token with an invalid jti value.
+     *
      * jti must be string and other values should not be accepted.
-     * 
+     *
      * This should result with InvalidClaimTypeException.
-     */                
+     */
     public function test_building_encoded_token_with_invalid_jti_claim_type(): void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
@@ -318,12 +318,12 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if it's not possible to create an encoded token with invalid sub value.
-     * 
+     * Checks if it's not possible to create an encoded token with an invalid sub value.
+     *
      * sub must be string and other values should not be accepted.
-     * 
+     *
      * This should result with InvalidClaimTypeException.
-     */                
+     */
     public function test_building_encoded_token_with_invalid_sub_claim_type(): void
     {
         $header = Base64Url::encode(json_encode(['typ' => 'JWT', 'alg' => JWT::ALGORITHM_HS256]));
@@ -335,29 +335,13 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InvalidClaimTypeException::class);
         new TokenEncoded($token);
     }
-    
-    /**
-     * Checks if algorithm passed to encoding method takes priority over algorithm defined in token's header.
-     */
-    public function test_encoding_with_algorithm_force(): void
-    {
-        $privateKey = file_get_contents('./tests/keys/private.key');
-        
-        $tokenDecoded = new TokenDecoded();
-        $tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_HS256);
-        $tokenString = $tokenEncoded->toString();
-        
-        $tokenEncoded = new TokenEncoded($tokenString);
-        $header = $tokenEncoded->decode()->getHeader();
-        $this->assertEquals(JWT::ALGORITHM_HS256, $header['alg']);
-    }
 
     /**
-     * Checks if it's not possible to encode a token when provided key doesn't comply
+     * Checks, if it's not possible to encode a token when provided key, doesn't comply
      * with selected algorithm's standards.
-     * 
+     *
      * This should result with SigningFailedException.
-     */   
+     */
     public function test_encoding_with_incorrect_key_format_for_given_algorithm(): void
     {
         $this->expectException(SigningFailedException::class);
@@ -369,7 +353,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode a token with no algorithm defined in its header.
+     * Checks, if it's not possible to encode a token with no algorithm defined in its header.
      * 
      * This should result with InsecureTokenException.
      */
@@ -384,7 +368,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode a token with unsupported algorithm.
+     * Checks, if it's not possible to encode a token with an unsupported algorithm.
      * 
      * This should result with UnsupportedAlgorithmException.
      */
@@ -399,7 +383,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode a token with invalid exp value.
+     * Checks, if it's not possible to encode a token with an invalid exp value.
      *
      * exp must be integer and other values should not be accepted.
      * 
@@ -416,7 +400,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode decoded token with invalid nbf value.
+     * Checks, if it's not possible to encode decoded token with an invalid nbf value.
      * 
      * nbf must be integer and other values should not be accepted.
      * 
@@ -433,7 +417,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode decoded token with invalid iat value.
+     * Checks, if it's not possible to encode decoded token with an invalid iat value.
      * 
      * iat must be integer and other values should not be accepted.
      * 
@@ -450,7 +434,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode decoded token with invalid iss value.
+     * Checks, if it's not possible to encode decoded token with an invalid iss value.
      * 
      * iss must be string and other values should not be accepted.
      * 
@@ -467,7 +451,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode decoded token with invalid sub value.
+     * Checks, if it's not possible to encode decoded token with an invalid sub value.
      * 
      * sub must be string and other values should not be accepted.
      * 
@@ -484,7 +468,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode decoded token with invalid aud value.
+     * Checks, if it's not possible to encode decoded token with an invalid aud value.
      * 
      * aud must be string and other values should not be accepted.
      * 
@@ -501,7 +485,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's not possible to encode decoded token with invalid jti value.
+     * Checks, if it's not possible to encode decoded token with an invalid jti value.
      * 
      * jti must be string and other values should not be accepted.
      * 
@@ -518,7 +502,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's possible to encode the token when header was set
+     * Checks, if it's possible to encode the token when header was set
      * through setter method instead of constructor.
      */
     public function test_encoding_decoding_with_indirect_header(): void
@@ -537,7 +521,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
         
     /**
-     * Checks if it's possible to encode the token when payload was set through
+     * Checks, if it's possible to encode the token when payload was set through
      * setter method instead of constructor.
      */    
     public function test_encoding_decoding_with_indirect_payload(): void
@@ -554,7 +538,7 @@ class TokenEncodedTest extends TokenBaseTest
     }    
             
     /**
-     * Checks if it's possible to encode the token when alg was not defined in token's header.
+     * Checks, if it's possible to encode the token when alg was not defined in token's header.
      * 
      * Default algorithm should be set automatically.
      */    
@@ -571,7 +555,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if it's possible to encode the token when typ was not defined in token's header.
+     * Checks, if it's possible to encode the token when typ was not defined in token's header.
      * 
      * Default JWT typ should be set automatically.
      */      
@@ -741,7 +725,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if validation fails for token with invalid exp.
+     * Checks if validation fails for token with an invalid exp.
      *
      * This should result with TokenExpiredException.
      */
@@ -783,7 +767,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if validation fails for token with invalid exp and not compensated by leeway.
+     * Checks if validation fails for token with an invalid exp and not compensated by leeway.
      *
      * This should result with TokenExpiredException.
      */
@@ -825,7 +809,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if validation fails for token with invalid nbf.
+     * Checks if validation fails for token with an invalid nbf.
      *
      * This should result with TokenInactiveException.
      */
@@ -844,7 +828,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if validation succeeds for token with invalid nbf but compensated by leeway.
+     * Checks if validation succeeds for token with an invalid nbf but compensated by leeway.
      */
     public function test_validation_with_not_before_date_invalid_leeway_valid(): void
     {
@@ -867,7 +851,7 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks if validation fails for token with invalid nbf and not compensated by leeway.
+     * Checks if validation fails for token with an invalid nbf and not compensated by leeway.
      *
      * This should result with TokenInactiveException.
      */

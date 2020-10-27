@@ -1,6 +1,7 @@
 {
     "name": "nowakowskir/php-jwt",
     "description": "JSON Web Token implementation for PHP.",
+    "type": "library",
     "homepage": "https://github.com/nowakowskir/php-jwt",
     "authors": [
         {
@@ -8,14 +9,23 @@
             "email": "nowakowski.r@gmail.com"
         }
     ],
+    "keywords": [
+        "JWT",
+        "JSON",
+        "Token"
+    ],
     "license": "BSD-3-Clause",
     "require": {
         "php": ">=7.2.1"
     },
     "autoload": {
         "psr-4": {
-            "Nowakowskir\\JWT\\": "src/",
-            "Nowakowskir\\JWT\\Tests\\": "tests/"
+            "Nowakowskir\\JWT\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "require-dev": {

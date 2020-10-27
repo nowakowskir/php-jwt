@@ -1,10 +1,9 @@
 <?php
 
-namespace Nowakowskir\JWT\Tests;
+namespace Tests;
 
 use Exception;
 use Nowakowskir\JWT\Exceptions\IntegrityViolationException;
-use Nowakowskir\JWT\JWT;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
 use PHPUnit\Framework\TestCase;

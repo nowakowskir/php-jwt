@@ -12,7 +12,7 @@ namespace Nowakowskir\JWT;
 class TokenEncoded
 {
     /**
-     * String representation of encoded token.
+     * String representation of the encoded token.
      */
     protected $token;
     
@@ -32,7 +32,7 @@ class TokenEncoded
     protected $signature;
 
     /**
-     * @param string|null $token
+     * @param string $token
      * 
      * @throws EmptyTokenException
      */
