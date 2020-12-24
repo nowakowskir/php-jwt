@@ -170,7 +170,7 @@ class JWT
 
         switch ($function) {
             case 'hash_hmac':
-                if (hash_equals($signature, hash_hmac($type, $tokenEncoded->getMessage(), $key, true)) !== true) {
+                if (hash_equals(hash_hmac($type, $tokenEncoded->getMessage(), $key, true), $signature) !== true) {
                     throw new IntegrityViolationException('Invalid signature');
                 }
                 break;
