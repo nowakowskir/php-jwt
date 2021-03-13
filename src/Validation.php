@@ -135,7 +135,8 @@ class Validation
     {
         switch ($type) {
             case 'integer':
-                if (array_key_exists($claim, $payload) && ! is_int($payload[$claim])) {
+                $p_claim = (int) $payload[$claim];
+                if (array_key_exists($claim, $payload) && $p_claim>0)) {
                     throw new InvalidClaimTypeException(sprintf('Invalid %s claim - %s value required', $claim, $type));
                 }
                 break;
