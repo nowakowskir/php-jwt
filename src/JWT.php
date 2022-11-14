@@ -73,7 +73,6 @@ class JWT
         }
 
         $header = array_merge($tokenDecoded->getHeader(), [
-            'typ' => array_key_exists('typ', $tokenDecoded->getHeader()) ? $tokenDecoded->getHeader()['typ'] : 'JWT',
             'alg' => $algorithm
         ]);
 

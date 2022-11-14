@@ -31,7 +31,7 @@ class TokenEncodedTest extends TokenBaseTest
     {
         $tokenDecoded = new TokenDecoded(null, ['alg' => JWT::ALGORITHM_RS512]);
 
-        $key = file_get_contents('./tests/keys/private.key');
+        $key = file_get_contents('./tests/keys/rs512/private.key');
 
         $exception = false;
 
@@ -57,12 +57,12 @@ class TokenEncodedTest extends TokenBaseTest
     {
         // Issuer part
         $issuerTokenDecoded = new TokenDecoded();
-        $issuerPrivateKey = file_get_contents('./tests/keys/private.key');
+        $issuerPrivateKey = file_get_contents('./tests/keys/rs256/private.key');
         $issuerTokenEncoded = $issuerTokenDecoded->encode($issuerPrivateKey, JWT::ALGORITHM_RS256);
         $issuerTokenString = $issuerTokenEncoded->toString();
         
         // Attacker part
-        $capturedPublicKey = file_get_contents('./tests/keys/public.pub');
+        $capturedPublicKey = file_get_contents('./tests/keys/rs256/public.pub');
         $attackerTokenEncoded = new TokenEncoded($issuerTokenString);
         $attackerTokenDecoded = $attackerTokenEncoded->decode();
         $header = $attackerTokenDecoded->getHeader();
@@ -72,7 +72,7 @@ class TokenEncodedTest extends TokenBaseTest
         $craftedTokenString = $craftedTokenEncoded->toString();
         
         // Verifier part
-        $verifierPublicKey = file_get_contents('./tests/keys/public.pub');
+        $verifierPublicKey = file_get_contents('./tests/keys/rs256/public.pub');
         $verifierTokenEncoded = new TokenEncoded($craftedTokenString);
         $verifierHeader = $verifierTokenEncoded->decode()->getHeader();
         $exception = false;
@@ -97,12 +97,12 @@ class TokenEncodedTest extends TokenBaseTest
     {
         // Issuer part
         $issuerTokenDecoded = new TokenDecoded();
-        $issuerPrivateKey = file_get_contents('./tests/keys/private.key');
+        $issuerPrivateKey = file_get_contents('./tests/keys/rs256/private.key');
         $issuerTokenEncoded = $issuerTokenDecoded->encode($issuerPrivateKey, JWT::ALGORITHM_RS256);
         $issuerTokenString = $issuerTokenEncoded->toString();
         
         // Attacker part
-        $capturedPublicKey = file_get_contents('./tests/keys/public.pub');
+        $capturedPublicKey = file_get_contents('./tests/keys/rs256/public.pub');
         $attackerTokenEncoded = new TokenEncoded($issuerTokenString);
         $attackerTokenDecoded = $attackerTokenEncoded->decode();
         $header = $attackerTokenDecoded->getHeader();
@@ -112,7 +112,7 @@ class TokenEncodedTest extends TokenBaseTest
         $craftedTokenString = $craftedTokenEncoded->toString();
         
         // Verifier part
-        $verifierPublicKey = file_get_contents('./tests/keys/public.pub');
+        $verifierPublicKey = file_get_contents('./tests/keys/rs256/public.pub');
         $verifierTokenEncoded = new TokenEncoded($craftedTokenString);
         
         $exception = false;
@@ -538,23 +538,6 @@ class TokenEncodedTest extends TokenBaseTest
     }
 
     /**
-     * Checks, if it's possible to encode the token when typ was not defined in token's header.
-     * 
-     * Default JWT typ should be set automatically.
-     */      
-    public function test_encoding_decoding_with_auto_appending_header_typ(): void
-    {
-        $key = ']V@IaC1%fU,DrVI';
-        
-        $tokenDecoded = new TokenDecoded();
-        $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_HS256);
-        
-        $header = $tokenEncoded->decode()->getHeader();
-        $this->assertTrue(array_key_exists('typ', $header));
-        $this->assertEquals('JWT', $header['typ']); 
-    }
-    
-    /**
      * Checks basic decoding payload functionality.
      */
     public function test_decoding_payload(): void
@@ -622,7 +605,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_rs256(): void
     {
-        $this->check_token_integrity(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
+        $this->check_token_integrity(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/rs256/private.key'), file_get_contents('./tests/keys/rs256/public.pub'));
     }
 
     /**
@@ -630,7 +613,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_violation_rs256(): void
     {
-        $this->check_token_integrity_violation(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
+        $this->check_token_integrity_violation(JWT::ALGORITHM_RS256, file_get_contents('./tests/keys/rs256/private.key'), file_get_contents('./tests/keys/rs256/public_invalid.pub'));
     }
 
     /**
@@ -638,7 +621,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_rs384(): void
     {
-        $this->check_token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
+        $this->check_token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/rs256/private.key'), file_get_contents('./tests/keys/rs256/public.pub'));
     }
 
     /**
@@ -646,7 +629,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_violation_rs384(): void
     {
-        $this->check_token_integrity_violation(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
+        $this->check_token_integrity_violation(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/rs384/private.key'), file_get_contents('./tests/keys/rs384/public_invalid.pub'));
     }
 
     /**
@@ -654,7 +637,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_rs512(): void
     {
-        $this->check_token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public.pub'));
+        $this->check_token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/rs256/private.key'), file_get_contents('./tests/keys/rs256/public.pub'));
     }
 
     /**
@@ -662,7 +645,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_violation_rs512(): void
     {
-        $this->check_token_integrity_violation(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/private.key'), file_get_contents('./tests/keys/public_invalid.pub'));
+        $this->check_token_integrity_violation(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/rs512/private.key'), file_get_contents('./tests/keys/rs512/public_invalid.pub'));
     }
 
     /**
