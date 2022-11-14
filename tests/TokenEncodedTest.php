@@ -621,7 +621,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_rs384(): void
     {
-        $this->check_token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/rs256/private.key'), file_get_contents('./tests/keys/rs256/public.pub'));
+        $this->check_token_integrity(JWT::ALGORITHM_RS384, file_get_contents('./tests/keys/rs384/private.key'), file_get_contents('./tests/keys/rs384/public.pub'));
     }
 
     /**
@@ -637,7 +637,7 @@ class TokenEncodedTest extends TokenBaseTest
      */
     public function test_validation_integrity_rs512(): void
     {
-        $this->check_token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/rs256/private.key'), file_get_contents('./tests/keys/rs256/public.pub'));
+        $this->check_token_integrity(JWT::ALGORITHM_RS512, file_get_contents('./tests/keys/rs512/private.key'), file_get_contents('./tests/keys/rs512/public.pub'));
     }
 
     /**
