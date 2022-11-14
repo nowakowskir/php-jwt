@@ -185,24 +185,7 @@ class TokenEncodedTest extends TokenBaseTest
         $this->expectException(InsecureTokenException::class);
         new TokenEncoded($token);
     }
-            
-    /**
-     * Checks if it's not possible to create an encoded token which has no JWT typ defined in its header.
-     * 
-     * This should result with UnsupportedTokenTypeException.
-     */    
-    public function test_building_encoded_token_with_unsupported_token_type(): void
-    {
-        $header = Base64Url::encode(json_encode(['typ' => 'XYZ']));
-        $payload = Base64Url::encode(json_encode([]));
-        $signature = Base64Url::encode('signature');
-        
-        $token = sprintf('%s.%s.%s', $header, $payload, $signature);
-        
-        $this->expectException(UnsupportedTokenTypeException::class);
-        new TokenEncoded($token);
-    }
-            
+
     /**
      * Checks if it's not possible to create an encoded token with an invalid exp value.
      * 

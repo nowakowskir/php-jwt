@@ -46,7 +46,6 @@ class TokenEncoded
         $headerArray = json_decode(Base64Url::decode($header), true);
         $payloadArray = json_decode(Base64Url::decode($payload), true);
         
-        Validation::checkTokenType($headerArray);
         Validation::checkAlgorithmDefined($headerArray);
         Validation::checkAlgorithmSupported($headerArray['alg']);
         Validation::checkSignatureMissing($signature);

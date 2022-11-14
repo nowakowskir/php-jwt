@@ -147,18 +147,4 @@ class Validation
                 break;
         }
     }
-    
-    /**
-     * Checks if token is of JWT type.
-     * 
-     * @param array $header Header array
-     * 
-     * @throws UnsupportedTokenTypeException
-     */
-    public static function checkTokenType(array $header): void
-    {
-        if (! array_key_exists('typ', $header) || $header['typ'] !== 'JWT') {
-            throw new UnsupportedTokenTypeException('Unsupported token type');
-        }
-    }
 }
