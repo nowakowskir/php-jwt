@@ -1,3 +1,5 @@
+# There are no updates, because there are no issues. This package is stable and maintained when needed.
+
 # JSON Web Tokens (JWT) implementation for PHP 7
 
 ## JWT
