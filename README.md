@@ -32,7 +32,7 @@ composer require nowakowskir/php-jwt
 
 Make sure your vendor auto load file is loaded correctly and the following classes are used.
 
-```
+```php
 use Nowakowskir\JWT\JWT;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
@@ -66,7 +66,7 @@ This class is a representation of an encoded token.
 
 There are two arguments you can optionally pass to ```TokenDecode``` constructor. These are payload and header.
 
-```
+```php
 $tokenDecoded = new TokenDecoded(['payload_key' => 'value'], ['header_key' => 'value']);
 $tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
 
@@ -77,20 +77,20 @@ echo 'Your token is: ' . $tokenEncoded->toString();
 
 ### Instantiating existing token
 
-```
+```php
 $tokenEncoded = new TokenEncoded('Existing JSON Web Token');
 ```
 
 ### Getting token's header
 
-```
+```php
 $tokenEncoded = new TokenEncoded('Existing JSON Web Token');
 $header = $tokenEncoded->decode()->getHeader();
 ```
 
 ### Getting token's payload
 
-```
+```php
 $tokenEncoded = new TokenEncoded('Existing JSON Web Token');
 $payload = $tokenEncoded->decode()->getPayload();
 ```
@@ -101,7 +101,7 @@ $payload = $tokenEncoded->decode()->getPayload();
 
 In order to use a decoded payload make sure your token goes through validate process first. Otherwise, payload can't be assumed as trusted!
 
-```
+```php
 try {
     $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
 } catch(Exception $e) {
@@ -125,7 +125,7 @@ Exception Class | Description
 
 If you want your token to expire at some date, you can use ```exp``` flag.
 
-```
+```php
 $tokenDecoded = new TokenDecoded(['exp' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 ```
@@ -134,7 +134,7 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 
 If you want your token to be not active until reach some date, you can use ```nbf``` flag.
 
-```
+```php
 $tokenDecoded = new TokenDecoded(['nbf' => time() + 1000]);
 $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 ```
@@ -143,7 +143,7 @@ $tokenEncoded = $tokenDecoded->encode($key, JWT::ALGORITHM_RS256);
 
 Because the clock may vary across the servers, you can use so-called ``leeway`` to solve this issue. It's some kind of time margin which will be taken into account when validating token (exp, nbf).
 
-```
+```php
 $leeway = 500;
 $tokenEncoded = new TokenEncoded('Existing JSON Web Token');
 $tokenEncoded->validate($key, JWT::ALGORITHM_RS256, $leeway);
@@ -174,13 +174,13 @@ To increase your tokens' security, this package requires an algorithm to be prov
 
 Below you can find correct way of encoding and decoding tokens:
 
-```
+```php
 // Issuer
 $tokenDecoded = new TokenDecoded();
 $tokenEncoded = $tokenDecoded->encode($privateKey, JWT::ALGORITHM_RS256);
 ```
 
-```
+```php
 // Consumer
 $tokenEncoded->validate($publicKey, JWT::ALGORITHM_RS256);
 ```
@@ -193,7 +193,7 @@ This protects your token against successful validation in case the token has bee
 
 You may be tempted to do some workaround and use the algorithm contained in the token's header for validation purposes, although it's highly not recommended!
 
-```
+```php
 // Don't use algorithm defined in token's header like here!
 $header = $tokenEncoded->decode()->getHeader();
 $tokenEncoded->validate($publicKey, $header['alg']);
@@ -207,7 +207,7 @@ This package does not let you create a token with ```none``` algorithm or empty 
 
 Trying to do so will result in ```Nowakowskir\JWT\Exceptions\InsecureTokenException``` exception.
 
-```
+```php
 try {
     $tokenEncoded = new TokenEncoded('Existing JSON Web Token with none algorithm or missing signature');
 } catch (InsecureTokenException $e) {
@@ -215,7 +215,7 @@ try {
 }
 ```
 
-```
+```php
 try {
     $tokenDecoded = new TokenDecoded();
 
@@ -227,7 +227,7 @@ try {
 
 It's also not possible to parse token without an algorithm defined.
 
-```
+```php
 try {
     $tokenEncoded = new TokenEncoded('Existing JSON Web Token without an algorithm');
 } catch (UndefinedAlgorithmException $e) {
